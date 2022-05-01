@@ -1,0 +1,28 @@
+{
+	"name": "mern-IG-clone",
+	"version": "1.0.0",
+	"author": "The Yellow May",
+	"license": "MIT",
+	"scripts": {
+		"start": "node server",
+		"dev:server": "nodemon server",
+		"dev:client": "yarn --cwd client start",
+		"dev": "concurrently \"yarn dev:server\" \"yarn dev:client\"",
+		"heroku-postbuild": "YARN_CONFIG_PRODUCTION=false yarn build && yarn install --cwd client && yarn --cwd client build"
+	},
+	"devDependencies": {
+		"eslint": "^8.14.0",
+		"nodemon": "^2.0.15"
+	},
+	"dependencies": {
+		"bcrypt": "^5.0.1",
+		"concurrently": "^7.1.0",
+		"cookie-parser": "^1.4.6",
+		"cors": "^2.8.5",
+		"express": "^4.17.3",
+		"express-async-errors": "^3.1.1",
+		"http-status-codes": "^2.2.0",
+		"mongoose": "^6.3.1",
+		"multer": "^1.4.4"
+	}
+}
