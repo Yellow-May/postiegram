@@ -1,30 +1,13 @@
-import { FC, useState } from 'react';
-import { useLogout, usePrivateAxios } from 'hooks';
+import { Space } from 'antd';
+import { FC } from 'react';
 
 interface HomePageProps {}
 
 const HomePage: FC<HomePageProps> = () => {
-	const [data, setData] = useState<any | null>(null);
-	const axiosPrivate = usePrivateAxios();
-	const logout = useLogout();
-
-	const getUsers = async () => {
-		try {
-			const res = await axiosPrivate.get('/user');
-			setData(res.data.users);
-		} catch (error) {
-			console.error(error);
-		}
-	};
-
 	return (
-		<main>
-			<h1>Home Page</h1>
-			<button onClick={getUsers}>Get Users</button>
-			<button onClick={logout}>Logout</button>
-
-			<ul>{data && data.map((e: any, idx: number) => <li key={idx}>{e.username}</li>)}</ul>
-		</main>
+		<Space direction='vertical' size='large' style={{ display: 'flex', minHeight: 1024 }}>
+			<div className='stories'>Stories Coming Soon!</div>
+		</Space>
 	);
 };
 

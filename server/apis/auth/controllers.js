@@ -24,7 +24,7 @@ module.exports.REGISTER_USER = async (req, res) => {
 
 	await TokenModel.create({ refreshToken, userAgent, browserId, user: user._id });
 
-	attachCookie(res, { refreshToken, browserId }, 1000 * 30);
+	attachCookie(res, { refreshToken, browserId });
 	res.status(StatusCodes.CREATED).json({
 		message: 'You have successfully registered',
 		user: userData,
@@ -53,11 +53,11 @@ module.exports.LOGIN_USER = async (req, res) => {
 			{ browserId: cookie.browserId, user: user._id },
 			{ $set: { refreshToken } }
 		);
-		attachCookie(res, { refreshToken, browserId: cookie.browserId }, 1000 * 30);
+		attachCookie(res, { refreshToken, browserId: cookie.browserId });
 	} else {
 		// await TokenModel.deleteMany({ user: user._id });
 		await TokenModel.create({ refreshToken, userAgent, browserId, user: user._id });
-		attachCookie(res, { refreshToken, browserId }, 1000 * 30);
+		attachCookie(res, { refreshToken, browserId });
 	}
 
 	res.status(StatusCodes.OK).json({
@@ -71,7 +71,7 @@ module.exports.LOGOUT_USER = async (req, res) => {
 	const { refreshToken, browserId } = retreiveCookies(req);
 	await TokenModel.findOneAndUpdate({ refreshToken, browserId }, { $set: { refreshToken: '' } });
 
-	attachCookie(res, { refreshToken: '', browserId }, 1);
+	attachCookie(res, { refreshToken: ' ', browserId });
 	res.status(StatusCodes.OK).json({ message: 'You have been logged out' });
 };
 

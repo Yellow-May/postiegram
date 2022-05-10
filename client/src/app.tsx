@@ -10,6 +10,7 @@ import {
 	RegisterPage,
 	NotFoundPage,
 	UnAuthorizedPage,
+	PageLayout,
 } from 'pages';
 import { RequireAuth, AlreadyAuth, PersistLogin } from 'components';
 
@@ -22,7 +23,9 @@ const MyApp: FC<MyAppProps> = () => {
 			<Route element={<PersistLogin />}>
 				{/* Private */}
 				<Route element={<RequireAuth permissions={[2001]} />}>
-					<Route path='/' element={<HomePage />} />
+					<Route path='/' element={<PageLayout />}>
+						<Route index element={<HomePage />} />
+					</Route>
 				</Route>
 
 				{/* Public Pages */}
