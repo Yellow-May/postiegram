@@ -12,6 +12,8 @@ type LocationState = {
 	from: Location;
 } | null;
 
+console.log(process.env.REACT_APP_BACKEND_URL);
+
 const LoginPage: FC<LoginPageProps> = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
