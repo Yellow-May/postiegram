@@ -32,6 +32,7 @@ const LoginPage: FC<LoginPageProps> = () => {
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center',
+				backgroundColor: '#ffffff',
 			}}>
 			<Space direction='vertical' style={{ width: 360, maxWidth: '95%' }}>
 				<Form

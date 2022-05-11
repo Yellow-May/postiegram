@@ -30,6 +30,7 @@ const RegisterPage: FC<RegisterPageProps> = () => {
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center',
+				backgroundColor: '#ffffff',
 			}}>
 			<Space direction='vertical' style={{ width: 480, maxWidth: '95%' }}>
 				<Form
