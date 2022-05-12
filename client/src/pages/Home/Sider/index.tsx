@@ -1,17 +1,13 @@
 import { FC } from 'react';
-import { LogoutOutlined } from '@ant-design/icons';
-import { Avatar, Layout, Space, Image, Button, Popconfirm, Typography } from 'antd';
+import { Avatar, Layout, Space, Image, Typography } from 'antd';
 import { useSelector } from 'react-redux';
-import { getUser, LogoutUser } from 'redux/features/Auth';
-import { useAppDispatch } from 'redux/store';
+import { getUser } from 'redux/features/Auth';
 import { Link } from 'react-router-dom';
 
 interface SiderProps {}
 
 const Sider: FC<SiderProps> = () => {
 	const user = useSelector(getUser);
-	const dispatch = useAppDispatch();
-	const logout = () => dispatch(LogoutUser());
 
 	return (
 		<Layout.Sider style={{ backgroundColor: '#e3e3e3', padding: '24px 0 0 24px' }}>
@@ -21,7 +17,7 @@ const Sider: FC<SiderProps> = () => {
 						<Avatar
 							crossOrigin='use-credentials'
 							src={
-								<Link to='/profile'>
+								<Link to={`/profile/${user?.username}`}>
 									<Image crossOrigin='use-credentials' src={user?.img} preview={false} />
 								</Link>
 							}
@@ -34,7 +30,7 @@ const Sider: FC<SiderProps> = () => {
 								alignItems: 'start',
 							}}>
 							<Typography.Text title='username' strong style={{ fontSize: '0.95em' }}>
-								<Link to='/profile' style={{ color: 'inherit' }}>
+								<Link to={`/profile/${user?.username}`} style={{ color: 'inherit' }}>
 									{user?.username}
 								</Link>
 							</Typography.Text>
@@ -43,13 +39,6 @@ const Sider: FC<SiderProps> = () => {
 							</Typography.Text>
 						</div>
 					</Space>
-					<Popconfirm
-						title='Are you sure you want to logout?'
-						onConfirm={logout}
-						okText='Logout'
-						cancelText='Continue Exploring'>
-						<Button title='logout' danger icon={<LogoutOutlined />} />
-					</Popconfirm>
 				</div>
 			</div>
 			<Layout.Footer

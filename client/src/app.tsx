@@ -4,15 +4,16 @@ import 'antd/dist/antd.min.css';
 
 // pages and components
 import {
-	ComingSoonPage,
+	PageLayout,
 	HomePage,
 	LoginPage,
 	RegisterPage,
+	ComingSoonPage,
 	NotFoundPage,
 	UnAuthorizedPage,
-	PageLayout,
 } from 'pages';
 import { RequireAuth, AlreadyAuth, PersistLogin } from 'components';
+import ProfilePage from 'pages/Profile';
 
 // myapp props interface
 interface MyAppProps {}
@@ -25,6 +26,9 @@ const MyApp: FC<MyAppProps> = () => {
 				<Route element={<RequireAuth permissions={[2001]} />}>
 					<Route path='/' element={<PageLayout />}>
 						<Route index element={<HomePage />} />
+						<Route path='profile'>
+							<Route path=':username' element={<ProfilePage />} />
+						</Route>
 					</Route>
 				</Route>
 

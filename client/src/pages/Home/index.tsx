@@ -1,13 +1,20 @@
-import { Space } from 'antd';
-import { FC } from 'react';
+import { Layout, Space } from 'antd';
+import { FC, Fragment } from 'react';
+import Sider from './Sider';
 
 interface HomePageProps {}
 
 const HomePage: FC<HomePageProps> = () => {
 	return (
-		<Space direction='vertical' size='large' style={{ display: 'flex', minHeight: 1024 }}>
-			<div className='stories'>Stories Coming Soon!</div>
-		</Space>
+		<Fragment>
+			<Layout.Content style={{ overflow: 'auto' }}>
+				<Space direction='vertical' size='large' style={{ display: 'flex', minHeight: 1024 }}>
+					<div className='stories'>Stories Coming Soon!</div>
+				</Space>
+			</Layout.Content>
+
+			<Sider />
+		</Fragment>
 	);
 };
 

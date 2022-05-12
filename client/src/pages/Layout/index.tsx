@@ -1,7 +1,6 @@
 import { FC } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Layout } from 'antd';
-import Sider from './Sider';
 import Header from './Header';
 
 interface PageLayoutProps {}
@@ -20,11 +19,7 @@ const PageLayout: FC<PageLayoutProps> = () => {
 					backgroundColor: '#e3e3e3',
 					paddingTop: 20,
 				}}>
-				<Layout.Content style={{ overflow: 'auto' }}>
-					<Outlet />
-				</Layout.Content>
-
-				<Sider />
+				<Outlet />
 			</Layout>
 		</Layout>
 	);
