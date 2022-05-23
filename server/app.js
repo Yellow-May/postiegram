@@ -24,7 +24,8 @@ app.use(
 	helmet.contentSecurityPolicy({
 		useDefaults: true,
 		directives: {
-			'img-src': ["'self'", 'https: data:'],
+			'img-src': ["'self'", 'https: blob:', 'https: data:'],
+			'connect-src': ["'self", 'https://api.cloudinary.com/v1_1/yellow-may/image/upload'],
 		},
 	})
 );
