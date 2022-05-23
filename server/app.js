@@ -20,7 +20,14 @@ const corsOptions = {
 
 // requests middlewares
 app.use(express.json());
-app.use(helmet());
+app.use(
+	helmet.contentSecurityPolicy({
+		useDefaults: true,
+		directives: {
+			'img-src': ["'self'", 'https: data:'],
+		},
+	})
+);
 app.use(cookieParser());
 app.use(xss());
 app.use(cors(corsOptions));
