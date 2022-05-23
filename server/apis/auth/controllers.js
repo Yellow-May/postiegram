@@ -2,22 +2,25 @@ const { v4: uuidV4 } = require('uuid');
 const { StatusCodes } = require('http-status-codes');
 const UserModel = require('../user/model');
 const TokenModel = require('./model');
-const {
-	BadRequestError,
-	UnAcceptableError,
-	UnAuthorizedError,
-} = require('../../utils/custom-errors');
+const { BadRequestError, UnAcceptableError, UnAuthorizedError } = require('../../utils/custom-errors');
 const { createTokens, createAccessToken } = require('../../utils/create-tokens');
 const { verifyRefreshToken } = require('../../utils/verify-token');
 const attachCookie = require('../../utils/attach-cookies');
 const retreiveCookies = require('../../utils/retreive-cookies');
 
 module.exports.REGISTER_USER = async (req, res) => {
-	const { email, username, password } = req.body;
-	if (!email || !username || !password) throw new BadRequestError('Please provide all credentials');
+	const { email, username, full_name, password } = req.body;
+	if (!email || !username || !full_name || !password) throw new BadRequestError('Please provide all credentials');
 
-	const user = await UserModel.create({ email, username, password });
-	const userData = { id: user._id, email, username, img: user.img, role: user.role };
+	const user = await UserModel.create({ email, username, password, profile: { full_name } });
+	const userData = {
+		username,
+		id: user._id,
+		role: user.role,
+		profile: user.profile,
+		followers: user.followers.map(e => ({ user_id: e.user_id, since: e.createdAt })),
+		following: user.following.map(e => ({ id: e._id, user_id: e.user_id, since: e.createdAt })),
+	};
 	const { accessToken, refreshToken } = createTokens(userData);
 	const userAgent = req.headers['user-agent'];
 	const browserId = uuidV4();
@@ -42,17 +45,21 @@ module.exports.LOGIN_USER = async (req, res) => {
 	const isCorrect = await user.comparePassword(password);
 	if (!isCorrect) throw new UnAcceptableError('Incorrect password');
 
-	const userData = { id: user._id, email, username: user.username, img: user.img, role: user.role };
+	const userData = {
+		id: user._id,
+		username: user.username,
+		role: user.role,
+		profile: user.profile,
+		followers: user.followers.map(e => ({ user_id: e.user_id, since: e.createdAt })),
+		following: user.following.map(e => ({ id: e._id, user_id: e.user_id, since: e.createdAt })),
+	};
 	const { accessToken, refreshToken } = createTokens(userData);
 	const userAgent = req.headers['user-agent'];
 	const cookie = retreiveCookies(req);
 	const browserId = uuidV4();
 
 	if (cookie.browserId) {
-		await TokenModel.findOneAndUpdate(
-			{ browserId: cookie.browserId, user: user._id },
-			{ $set: { refreshToken } }
-		);
+		await TokenModel.findOneAndUpdate({ browserId: cookie.browserId, user: user._id }, { $set: { refreshToken } });
 		attachCookie(res, { refreshToken, browserId: cookie.browserId });
 	} else {
 		// await TokenModel.deleteMany({ user: user._id });

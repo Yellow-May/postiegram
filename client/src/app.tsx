@@ -11,9 +11,12 @@ import {
 	ComingSoonPage,
 	NotFoundPage,
 	UnAuthorizedPage,
+	MyPosts,
+	SavedPosts,
+	ProfilePage,
+	AccountManagementPage,
 } from 'pages';
 import { RequireAuth, AlreadyAuth, PersistLogin } from 'components';
-import ProfilePage from 'pages/Profile';
 
 // myapp props interface
 interface MyAppProps {}
@@ -26,9 +29,11 @@ const MyApp: FC<MyAppProps> = () => {
 				<Route element={<RequireAuth permissions={[2001]} />}>
 					<Route path='/' element={<PageLayout />}>
 						<Route index element={<HomePage />} />
-						<Route path='profile'>
-							<Route path=':username' element={<ProfilePage />} />
+						<Route path=':username' element={<ProfilePage />}>
+							<Route index element={<MyPosts />} />
+							<Route path='saved' element={<SavedPosts />} />
 						</Route>
+						<Route path='account/edits' element={<AccountManagementPage />} />
 					</Route>
 				</Route>
 

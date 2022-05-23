@@ -1,38 +1,28 @@
 const userRouter = require('express').Router();
 
-const { StatusCodes } = require('http-status-codes');
-const { UnAcceptableError } = require('../../utils/custom-errors');
-const UserModel = require('./model');
 const authMiddleware = require('../auth/middleware');
+const {
+	CHECK_AVAILABLE_USERNAME,
+	GET_SINGLE_USER,
+	GET_ALL_USERS,
+	FOLLOW_USER,
+	UNFOLLOW_USER,
+	GET_FOLLOWERS,
+	GET_FOLLOWING,
+} = require('./controllers');
 
-userRouter.get('/', authMiddleware, async (_req, res) => {
-	const users = await UserModel.find({ role: 2001 })
-		.select('email username img')
-		.sort({ createdAt: 'desc' })
-		.exec();
+userRouter.get('/', authMiddleware, GET_ALL_USERS);
 
-	res.status(StatusCodes.OK).json({ users, nBits: users.length });
-});
+userRouter.post('/confirm-username', CHECK_AVAILABLE_USERNAME);
 
-userRouter.get('/:id', async (req, res) => {
-	const _id = req.params.id;
-	const user = await UserModel.find({ _id, role: 2001 }).select('email username img');
+userRouter.post('/follow', authMiddleware, FOLLOW_USER);
 
-	res.status(StatusCodes.OK).json({ user });
-});
+userRouter.post('/unfollow', authMiddleware, UNFOLLOW_USER);
 
-userRouter.get('/me', async (req, res) => {
-	const user = req.user;
-	res.status(StatusCodes.OK).json({ user });
-});
+userRouter.get('/followers', authMiddleware, GET_FOLLOWERS);
 
-userRouter.post('/confirm-username', async (req, res) => {
-	const { username } = req.body;
+userRouter.get('/following', authMiddleware, GET_FOLLOWING);
 
-	const usernameUsed = await UserModel.findOne({ username });
-	if (usernameUsed) throw new UnAcceptableError('Username has been used');
-
-	res.status(StatusCodes.OK).json({ message: 'Username is available' });
-});
+userRouter.get('/:username', authMiddleware, GET_SINGLE_USER);
 
 module.exports = userRouter;

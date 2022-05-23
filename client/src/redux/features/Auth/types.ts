@@ -7,8 +7,16 @@ type UserType = {
 	id: string;
 	role: UserRole;
 	username: string;
-	email: string;
-	img: string;
+	profile: {
+		full_name: string;
+		bio: string;
+		profile_pic: {
+			_id: string;
+			name: string;
+			url: string;
+			public_id: string;
+		};
+	};
 };
 
 export interface AuthState {
@@ -18,6 +26,7 @@ export interface AuthState {
 }
 
 export interface FormRegisterValuesProps {
+	full_name: string;
 	email: string;
 	username: string;
 	password: string;

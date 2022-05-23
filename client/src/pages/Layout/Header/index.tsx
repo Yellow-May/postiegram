@@ -3,9 +3,12 @@ import { Layout, Typography } from 'antd';
 import { Link } from 'react-router-dom';
 import HeaderMenu from './Menu';
 
-interface HeaderProps {}
+interface HeaderProps {
+	isVisible: boolean;
+	openCreatePostModal: () => void;
+}
 
-const Header: FC<HeaderProps> = () => {
+const Header: FC<HeaderProps> = ({ isVisible, openCreatePostModal }) => {
 	return (
 		<Layout.Header
 			style={{
@@ -30,7 +33,7 @@ const Header: FC<HeaderProps> = () => {
 					</Typography.Title>
 				</div>
 
-				<HeaderMenu />
+				<HeaderMenu {...{ isVisible, openCreatePostModal }} />
 			</div>
 		</Layout.Header>
 	);

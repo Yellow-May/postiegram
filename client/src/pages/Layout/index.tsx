@@ -1,14 +1,19 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Layout } from 'antd';
 import Header from './Header';
+import CreatePostModal from 'components/CreatePostModal';
 
 interface PageLayoutProps {}
 
 const PageLayout: FC<PageLayoutProps> = () => {
+	const [isVisible, setVisible] = useState(false);
+
+	const openCreatePostModal = () => setVisible(true);
+
 	return (
 		<Layout style={{ flexDirection: 'column', height: '100%', backgroundColor: '#e3e3e3' }}>
-			<Header />
+			<Header {...{ isVisible, openCreatePostModal }} />
 
 			<Layout
 				style={{
@@ -21,6 +26,8 @@ const PageLayout: FC<PageLayoutProps> = () => {
 				}}>
 				<Outlet />
 			</Layout>
+
+			<CreatePostModal {...{ isVisible, setVisible }} />
 		</Layout>
 	);
 };

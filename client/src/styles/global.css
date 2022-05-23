@@ -27,3 +27,7 @@ main.ant-layout-content::-webkit-scrollbar {
 	height: 60px;
 	text-align: center;
 }
+
+.ant-modal-centered {
+	overflow: hidden;
+}

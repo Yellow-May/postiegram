@@ -18,7 +18,7 @@ const Sider: FC<SiderProps> = () => {
 							crossOrigin='use-credentials'
 							src={
 								<Link to={`/profile/${user?.username}`}>
-									<Image crossOrigin='use-credentials' src={user?.img} preview={false} />
+									<Image crossOrigin='use-credentials' src={user?.profile.profile_pic.url} preview={false} />
 								</Link>
 							}
 							style={{ width: 60, height: 60, border: 'thin solid #9e9e9e' }}
@@ -28,14 +28,15 @@ const Sider: FC<SiderProps> = () => {
 								display: 'flex',
 								flexDirection: 'column',
 								alignItems: 'start',
+								gap: 3,
 							}}>
-							<Typography.Text title='username' strong style={{ fontSize: '0.95em' }}>
-								<Link to={`/profile/${user?.username}`} style={{ color: 'inherit' }}>
+							<Typography.Text title='username' strong style={{ fontSize: '1.125em' }}>
+								<Link to={`/${user?.username}`} style={{ color: 'inherit' }}>
 									{user?.username}
 								</Link>
 							</Typography.Text>
 							<Typography.Text ellipsis style={{ fontSize: '0.95em' }}>
-								{user?.email}
+								{user?.profile.full_name}
 							</Typography.Text>
 						</div>
 					</Space>

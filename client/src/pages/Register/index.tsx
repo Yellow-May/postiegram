@@ -5,6 +5,8 @@ import axios from 'apis/axios';
 import { RegisterUser } from 'redux/features/Auth';
 import { useAppDispatch } from 'redux/store';
 import { FormRegisterValuesProps } from 'redux/features/Auth/types';
+import { RuleObject } from 'antd/lib/form';
+import { NamePath } from 'antd/lib/form/interface';
 
 interface RegisterPageProps {}
 
@@ -18,6 +20,33 @@ const RegisterPage: FC<RegisterPageProps> = () => {
 	const state = location.state as LocationState;
 	const dispatch = useAppDispatch();
 
+	// antd form rule to check if username is unique
+	const checkIfUsernameIsAvailable = () => ({
+		async validator(_: RuleObject, value: any) {
+			try {
+				await axios.post('/user/confirm-username', {
+					username: value.trim(),
+				});
+				return Promise.resolve();
+			} catch (error: any) {
+				console.log(error);
+				const message = error?.response?.data?.message || error.message;
+				return Promise.reject(new Error(message));
+			}
+		},
+	});
+
+	// antd form rule to compare passwords are the same
+	const comparePasswords = ({ getFieldValue }: { getFieldValue: (name: NamePath) => any }) => ({
+		validator(_: RuleObject, value: any) {
+			if (!value || getFieldValue('password') === value) {
+				return Promise.resolve();
+			}
+			return Promise.reject(new Error('The two passwords that you entered do not match!'));
+		},
+	});
+
+	// handle submit
 	const onFinish = (values: FormRegisterValuesProps) => {
 		dispatch(RegisterUser(values));
 		navigate(!state || state?.from?.pathname === '/login' ? '/' : state?.from, { replace: true });
@@ -42,25 +71,19 @@ const RegisterPage: FC<RegisterPageProps> = () => {
 					autoComplete='off'
 					style={{ border: 'thin solid #e3e3e3', padding: 24 }}>
 					<Form.Item
+						label='Full Name'
+						name='full_name'
+						rules={[{ required: true, message: 'Please provide your full name' }]}>
+						<Input />
+					</Form.Item>
+					<Form.Item
 						label='Username'
 						name='username'
 						hasFeedback
 						rules={[
 							{ required: true, message: 'Please input a unique username!' },
-							() => ({
-								async validator(_, value) {
-									try {
-										await axios.post('/user/confirm-username', {
-											username: value.trim(),
-										});
-										return Promise.resolve();
-									} catch (error: any) {
-										console.log(error);
-										const message = error?.response?.data?.message || error.message;
-										return Promise.reject(new Error(message));
-									}
-								},
-							}),
+							{ min: 3, message: 'Username must be 3 chars or more' },
+							checkIfUsernameIsAvailable,
 						]}>
 						<Input />
 					</Form.Item>
@@ -90,19 +113,7 @@ const RegisterPage: FC<RegisterPageProps> = () => {
 						name='confirm-password'
 						dependencies={['password']}
 						hasFeedback
-						rules={[
-							{ required: true, message: 'Please confirm password' },
-							({ getFieldValue }) => ({
-								validator(_, value) {
-									if (!value || getFieldValue('password') === value) {
-										return Promise.resolve();
-									}
-									return Promise.reject(
-										new Error('The two passwords that you entered do not match!')
-									);
-								},
-							}),
-						]}>
+						rules={[{ required: true, message: 'Please confirm password' }, comparePasswords]}>
 						<Input.Password />
 					</Form.Item>
 

@@ -18,6 +18,7 @@ const LoginPage: FC<LoginPageProps> = () => {
 	const state = location.state as LocationState;
 	const dispatch = useAppDispatch();
 
+	// handle submit
 	const onFinish = (values: FormLoginValuesProps) => {
 		dispatch(LoginUser(values));
 		navigate(!state || state?.from?.pathname === '/register' ? '/' : state?.from, {
@@ -50,9 +51,7 @@ const LoginPage: FC<LoginPageProps> = () => {
 						<Input prefix={<UserOutlined className='site-form-item-icon' />} placeholder='Email' />
 					</Form.Item>
 
-					<Form.Item
-						name='password'
-						rules={[{ required: true, message: 'Please input your Password!' }]}>
+					<Form.Item name='password' rules={[{ required: true, message: 'Please input your Password!' }]}>
 						<Input.Password
 							prefix={<LockOutlined className='site-form-item-icon' />}
 							type='password'

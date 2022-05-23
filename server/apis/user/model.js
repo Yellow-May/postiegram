@@ -7,6 +7,42 @@ const defaultImg =
 		? 'http://localhost:5000/files/profile-images/default.png'
 		: 'https://ymay-postiegram.herokuapp.com/files/profile-images/default.png';
 
+const ProfileSchema = new mongoose.Schema({
+	full_name: {
+		type: String,
+		trim: true,
+		required: [true, 'Please provide your full name'],
+	},
+	bio: {
+		type: String,
+		trim: true,
+		default: 'Nothing to see here',
+	},
+	profile_pic: {
+		type: new mongoose.Schema({
+			name: String,
+			url: String,
+			public_id: String,
+		}),
+		default: {
+			name: 'default_profile_pic',
+			url: defaultImg,
+			public_id: '',
+		},
+	},
+});
+
+const RelationSchema = new mongoose.Schema(
+	{
+		_id: String,
+		user_id: {
+			type: mongoose.SchemaTypes.ObjectId,
+			ref: 'User',
+		},
+	},
+	{ timestamps: true, _id: false }
+);
+
 const UserSchema = new mongoose.Schema(
 	{
 		email: {
@@ -34,21 +70,19 @@ const UserSchema = new mongoose.Schema(
 			},
 			default: 2001,
 		},
-		img: {
-			type: String,
-			default: defaultImg,
+		profile: {
+			type: ProfileSchema,
+			required: [true, 'Please provide profile info'],
 		},
 		password: {
 			type: String,
 			required: [true, 'Please provide password'],
 			minlength: 6,
 		},
-		passwordToken: {
-			type: String,
-		},
-		passwordTokenExpirationDate: {
-			type: Date,
-		},
+		passwordToken: String,
+		passwordTokenExpirationDate: Date,
+		followers: [RelationSchema],
+		following: [RelationSchema],
 	},
 	{ timestamps: true }
 );
