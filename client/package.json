@@ -26,8 +26,5 @@
 		"@types/react-dom": "^18.0.2",
 		"@types/sha1": "^1.1.3",
 		"typescript": "^4.6.3"
-	},
-	"browser": {
-		"crypto": false
 	}
 }
