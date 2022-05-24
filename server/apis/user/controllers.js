@@ -1,6 +1,7 @@
 const { StatusCodes } = require('http-status-codes');
 const { v4: uuidv4 } = require('uuid');
 const UserModel = require('./model');
+const PostModel = require('../post/model');
 const { UnAcceptableError } = require('../../utils/custom-errors');
 
 module.exports.GET_ALL_USERS = async (_req, res) => {
@@ -9,13 +10,13 @@ module.exports.GET_ALL_USERS = async (_req, res) => {
 		.sort({ createdAt: 'desc' })
 		.exec();
 	const users = await Promise.all(
-		raw_users.map(user => ({
+		raw_users.map(async user => ({
+			id: user._id,
 			username: user.username,
-			full_name: user.profile.full_name,
-			bio: user.profile.bio,
-			profile_pic: user.profile.profile_pic.url,
-			followers: user.followers.map(e => ({ user_id: e.user_id, since: e.createdAt })),
-			following: user.following.map(e => ({ id: e._id, user_id: e.user_id, since: e.createdAt })),
+			profile: user.profile,
+			posts: (await PostModel.find({ creator_id: user._id })).length,
+			followers: user.followers.length,
+			following: user.following.length,
 		}))
 	);
 
@@ -23,16 +24,27 @@ module.exports.GET_ALL_USERS = async (_req, res) => {
 };
 
 module.exports.GET_SINGLE_USER = async (req, res) => {
+	const { id } = req.user;
+
+	const requesting_user = await UserModel.findById(id).select('username following followers');
 	const username = req.params.username;
-	const raw_user = await UserModel.find({ username, role: 2001 }).select('username profile').exec();
+	const raw_user = await UserModel.findOne({ username, role: 2001 });
+	const isFollowing = requesting_user.following.find(e => raw_user.followers.id(e._id));
+	const isFollower = requesting_user.followers.find(e => raw_user.following.id(e._id)) ? true : false;
+
 	const user = {
+		id: raw_user._id,
 		username: raw_user.username,
-		full_name: raw_user.profile.full_name,
-		bio: raw_user.profile.bio,
-		profile_pic: raw_user.profile.profile_pic.url,
-		followers: raw_user.followers.map(e => ({ user_id: e.user_id, since: e.createdAt })),
-		following: raw_user.following.map(e => ({ id: e._id, user_id: e.user_id, since: e.createdAt })),
+		profile: raw_user.profile,
+		posts: (await PostModel.find({ creator_id: raw_user._id })).length,
+		followers: raw_user.followers.length,
+		following: raw_user.following.length,
 	};
+
+	if (requesting_user.username !== username) {
+		user.isFollowing = isFollowing;
+		user.isFollower = isFollower;
+	}
 
 	res.status(StatusCodes.OK).json({ user });
 };

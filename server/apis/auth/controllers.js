@@ -14,12 +14,10 @@ module.exports.REGISTER_USER = async (req, res) => {
 
 	const user = await UserModel.create({ email, username, password, profile: { full_name } });
 	const userData = {
-		username,
 		id: user._id,
+		username,
 		role: user.role,
 		profile: user.profile,
-		followers: user.followers.map(e => ({ user_id: e.user_id, since: e.createdAt })),
-		following: user.following.map(e => ({ id: e._id, user_id: e.user_id, since: e.createdAt })),
 	};
 	const { accessToken, refreshToken } = createTokens(userData);
 	const userAgent = req.headers['user-agent'];
@@ -50,8 +48,6 @@ module.exports.LOGIN_USER = async (req, res) => {
 		username: user.username,
 		role: user.role,
 		profile: user.profile,
-		followers: user.followers.map(e => ({ user_id: e.user_id, since: e.createdAt })),
-		following: user.following.map(e => ({ id: e._id, user_id: e.user_id, since: e.createdAt })),
 	};
 	const { accessToken, refreshToken } = createTokens(userData);
 	const userAgent = req.headers['user-agent'];

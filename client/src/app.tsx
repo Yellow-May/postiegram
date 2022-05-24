@@ -45,6 +45,7 @@ const MyApp: FC<MyAppProps> = () => {
 			</Route>
 			<Route path='unauthorized' element={<UnAuthorizedPage />} />
 			<Route path='coming-soon' element={<ComingSoonPage />} />
+			<Route path='not-found' element={<NotFoundPage />} />
 			<Route path='*' element={<NotFoundPage />} />
 		</Routes>
 	);

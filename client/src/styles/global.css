@@ -31,3 +31,8 @@ main.ant-layout-content::-webkit-scrollbar {
 .ant-modal-centered {
 	overflow: hidden;
 }
+
+ul.custom-menu-nav > li.ant-menu-item-selected svg,
+ul.custom-menu-nav > li.ant-menu-item-active svg {
+	fill: #1890ff;
+}

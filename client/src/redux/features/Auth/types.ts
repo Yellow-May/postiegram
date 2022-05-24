@@ -9,10 +9,7 @@ type UserType = {
 	username: string;
 	profile: {
 		full_name: string;
-		bio: string;
 		profile_pic: {
-			_id: string;
-			name: string;
 			url: string;
 			public_id: string;
 		};

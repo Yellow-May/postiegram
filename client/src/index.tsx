@@ -1,4 +1,3 @@
-import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
@@ -10,12 +9,10 @@ const rootEl = document.getElementById('root') as HTMLElement;
 const root = createRoot(rootEl);
 
 const Root = () => (
-	<StrictMode>
-		<BrowserRouter>
-			<Provider {...{ store }}>
-				<MyApp />
-			</Provider>
-		</BrowserRouter>
-	</StrictMode>
+	<BrowserRouter>
+		<Provider {...{ store }}>
+			<MyApp />
+		</Provider>
+	</BrowserRouter>
 );
 root.render(<Root />);
