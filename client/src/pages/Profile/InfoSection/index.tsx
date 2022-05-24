@@ -56,7 +56,6 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 		fetchUser();
 
 		return function cleanup() {
-			console.log('unmount');
 			source.cancel();
 			setUser(null);
 		};

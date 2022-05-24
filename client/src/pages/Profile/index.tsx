@@ -23,11 +23,11 @@ const ProfilePage: FC<ProfilePageProps> = () => {
 			{isUser && (
 				<Menu
 					mode='horizontal'
-					defaultSelectedKeys={['/']}
+					defaultSelectedKeys={[location.pathname]}
 					className='custom-menu-nav'
 					items={[
 						{
-							key: '/',
+							key: `/${user?.username}`,
 							label: (
 								<Typography.Text style={{ fontSize: '0.85em', letterSpacing: 1, margin: '-1px 15px 0 15px' }}>
 									<TableOutlined />
@@ -38,7 +38,7 @@ const ProfilePage: FC<ProfilePageProps> = () => {
 							),
 						},
 						{
-							key: '/saved',
+							key: `/${user?.username}/saved`,
 							label: (
 								<Typography.Text style={{ fontSize: '0.85em', letterSpacing: 1, margin: '-1px 15px 0 15px' }}>
 									<SavedOutlinedIcon />
@@ -49,7 +49,7 @@ const ProfilePage: FC<ProfilePageProps> = () => {
 							),
 						},
 						{
-							key: '/tagged',
+							key: `/${user?.username}/tagged`,
 							label: (
 								<Typography.Text style={{ fontSize: '0.85em', letterSpacing: 1, margin: '-1px 15px 0 15px' }}>
 									<TagOutlined />
