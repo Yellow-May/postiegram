@@ -41,10 +41,11 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 	const [user, setUser] = useState<UserInfo | null>(null);
 	useEffect(() => {
 		const source = axios.CancelToken.source();
+		const username_url = location.pathname.split('/')[1];
 
 		const fetchUser = async () => {
 			try {
-				const res = await axiosPrivate.get(`/user${location.pathname}`, { cancelToken: source.token });
+				const res = await axiosPrivate.get(`/user/${username_url}`, { cancelToken: source.token });
 				setUser(res.data?.user);
 			} catch (error) {
 				console.log(error);
@@ -55,11 +56,12 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 		fetchUser();
 
 		return function cleanup() {
+			console.log('unmount');
 			source.cancel();
 			setUser(null);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [isUser]);
 
 	// followloading state to handle the change in the 'Follow', 'Unfollow' or 'Follow Back" button when the request is called
 	const [followLoadiing, setfollowLoading] = useState(false);

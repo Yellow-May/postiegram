@@ -12,7 +12,7 @@ interface ProfilePageProps {}
 const ProfilePage: FC<ProfilePageProps> = () => {
 	const user = useSelector(getUser);
 	const location = useLocation();
-	const isUser = location.pathname.slice(1) === user?.username;
+	const isUser = location.pathname.includes(user?.username as string);
 
 	return (
 		<div>
