@@ -9,15 +9,18 @@ const {
 	UNFOLLOW_USER,
 	GET_FOLLOWERS,
 	GET_FOLLOWING,
+	CHANGE_PROFILE_PIC,
 } = require('./controllers');
 
-userRouter.get('/', authMiddleware, GET_ALL_USERS);
-
 userRouter.post('/confirm-username', CHECK_AVAILABLE_USERNAME);
+
+userRouter.get('/', authMiddleware, GET_ALL_USERS);
 
 userRouter.post('/follow', authMiddleware, FOLLOW_USER);
 
 userRouter.post('/unfollow', authMiddleware, UNFOLLOW_USER);
+
+userRouter.post('/update-profile-pic', authMiddleware, CHANGE_PROFILE_PIC);
 
 userRouter.get('/:username', authMiddleware, GET_SINGLE_USER);
 

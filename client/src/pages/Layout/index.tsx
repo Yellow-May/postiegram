@@ -1,8 +1,8 @@
 import { FC, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Layout } from 'antd';
+import { CreatePostModal } from 'components';
 import Header from './Header';
-import CreatePostModal from 'components/CreatePostModal';
 
 interface PageLayoutProps {}
 

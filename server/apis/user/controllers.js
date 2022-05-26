@@ -141,3 +141,15 @@ module.exports.GET_FOLLOWING = async (req, res) => {
 
 	res.status(StatusCodes.OK).json({ following, nBits: following.length });
 };
+
+module.exports.CHANGE_PROFILE_PIC = async (req, res) => {
+	const { _id: id } = req.user;
+	const { profile_pic } = req.body;
+
+	const user = await UserModel.findByIdAndUpdate(
+		id,
+		{ $set: { 'profile.profile_pic': profile_pic } },
+		{ new: true, runValidators: true }
+	);
+	res.status(StatusCodes.OK).json({ message: 'Profile picture updated', user });
+};

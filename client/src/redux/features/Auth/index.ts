@@ -29,7 +29,11 @@ const initialState: AuthState = {
 export const authSlice = createSlice({
 	name: 'Authentication',
 	initialState,
-	reducers: {},
+	reducers: {
+		updateUserInfo: (state, action) => {
+			state.user = { ...state.user, ...action.payload };
+		},
+	},
 	extraReducers: builder => {
 		builder.addCase(authenticateUser.pending, state => {
 			state.loading = true;
@@ -47,14 +51,14 @@ export const authSlice = createSlice({
 			state.loading = false;
 			state.user = null;
 			state.token = null;
-			action?.meta.arg.endpoint === 'refresh' &&
-				localStorage.removeItem('XRUEINFODNMS_ymayCLONEig-rueo34');
+			action?.meta.arg.endpoint === 'refresh' && localStorage.removeItem('XRUEINFODNMS_ymayCLONEig-rueo34');
 		});
 	},
 });
 
-export const LoginUser = (data: FormLoginValuesProps) =>
-	authenticateUser({ method: 'post', endpoint: 'login', data });
+export const { updateUserInfo } = authSlice.actions;
+
+export const LoginUser = (data: FormLoginValuesProps) => authenticateUser({ method: 'post', endpoint: 'login', data });
 export const RegisterUser = (data: FormRegisterValuesProps) =>
 	authenticateUser({ method: 'post', endpoint: 'register', data });
 export const RefreshToken = () => authenticateUser({ method: 'get', endpoint: 'refresh' });

@@ -132,7 +132,7 @@ const RelationsModal: FC<RelationsModalProps> = ({ isUser, title, visible, close
 					<List.Item actions={[action(item)]}>
 						<Skeleton avatar title={false} loading={item.loading} active>
 							<List.Item.Meta
-								avatar={<Avatar crossOrigin='use-credentials' src={item.profile_pic} />}
+								avatar={<Avatar crossOrigin='anonymous' src={item.profile_pic} />}
 								title={
 									<Fragment>
 										<Link to={`/${item.username}`} onClick={onCancel}>

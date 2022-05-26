@@ -2,8 +2,8 @@ import { FC, useState, useEffect, Fragment } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Row, Col, Typography, Button, Space, Image } from 'antd';
 import { usePrivateAxios } from 'hooks';
+import { ChangeProfilePicModal, RelationsModal } from 'components';
 import axios from 'axios';
-import RelationsModal from 'components/RelationsModal';
 
 interface InfoSectionProps {
 	isUser: boolean;
@@ -62,7 +62,7 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 	}, [isUser]);
 
 	// followloading state to handle the change in the 'Follow', 'Unfollow' or 'Follow Back" button when the request is called
-	const [followLoadiing, setfollowLoading] = useState(false);
+	const [followLoading, setfollowLoading] = useState(false);
 	const followRequest = async ({ url, data }: { url: string; data: { _id?: string; user_id: string } }) => {
 		try {
 			await axiosPrivate.post(url, data);
@@ -86,15 +86,18 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 
 	/**
 	 * relations (followers and following)
-	 * staet management to handle the modal to display all followers and following respectively
+	 * state management to handle the modal to display all followers and following respectively
 	 */
 	const [isOpen, setOpen] = useState({ title: 'Followers', visible: false });
 	const openModal = (title: string) => setOpen({ title, visible: true });
 	const closeModal = () => setOpen({ title: '', visible: false });
 
-	const onClickProfilePic = () => {
-		console.log('hi');
-	};
+	/**
+	 * change profile pic
+	 * state to handle the modal
+	 */
+	const [isVisible, setVisible] = useState(false);
+	const onClickProfilePic = () => setVisible(true);
 
 	return user ? (
 		<Fragment>
@@ -129,8 +132,8 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 							</div>
 						) : (
 							<div>
-								<Button size='small' style={{ fontWeight: 500 }} loading={followLoadiing} onClick={handleFollowRequest}>
-									{followLoadiing ? '' : user.isFollowing ? 'Unfollow' : user.isFollower ? 'Follow Back' : 'Follow'}
+								<Button size='small' style={{ fontWeight: 500 }} loading={followLoading} onClick={handleFollowRequest}>
+									{followLoading ? '' : user.isFollowing ? 'Unfollow' : user.isFollower ? 'Follow Back' : 'Follow'}
 								</Button>
 							</div>
 						)}
@@ -156,6 +159,7 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 			</Row>
 
 			{isOpen.visible && <RelationsModal {...{ ...isOpen, closeModal, isUser, followRequest }} />}
+			<ChangeProfilePicModal {...{ isVisible, setVisible, fetchUser }} />
 		</Fragment>
 	) : (
 		<div style={{ height: 250 }}></div>

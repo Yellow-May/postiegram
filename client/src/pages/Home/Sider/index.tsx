@@ -15,10 +15,9 @@ const Sider: FC<SiderProps> = () => {
 				<div style={{ display: 'flex', alignItems: 'center' }}>
 					<Space style={{ flexGrow: 1 }}>
 						<Avatar
-							crossOrigin='use-credentials'
 							src={
-								<Link to={`/profile/${user?.username}`}>
-									<Image crossOrigin='use-credentials' src={user?.profile.profile_pic.url} preview={false} />
+								<Link to={`/${user?.username}`}>
+									<Image crossOrigin='anonymous' src={user?.profile.profile_pic.url} preview={false} />
 								</Link>
 							}
 							style={{ width: 60, height: 60, border: 'thin solid #9e9e9e' }}

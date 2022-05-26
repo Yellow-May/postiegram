@@ -65,10 +65,7 @@ const ProfileLabel: FC = () => {
 				/>
 			}>
 			<Avatar
-				crossOrigin='use-credentials'
-				src={
-					<Image crossOrigin='use-credentials' src={user?.profile.profile_pic.url} alt={user?.username} preview={false} />
-				}
+				src={<Image crossOrigin='anonymous' src={user?.profile.profile_pic.url} alt={user?.username} preview={false} />}
 			/>
 		</Dropdown>
 	);
