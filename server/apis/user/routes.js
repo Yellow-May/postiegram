@@ -19,10 +19,10 @@ userRouter.post('/follow', authMiddleware, FOLLOW_USER);
 
 userRouter.post('/unfollow', authMiddleware, UNFOLLOW_USER);
 
-userRouter.get('/followers', authMiddleware, GET_FOLLOWERS);
-
-userRouter.get('/following', authMiddleware, GET_FOLLOWING);
-
 userRouter.get('/:username', authMiddleware, GET_SINGLE_USER);
+
+userRouter.get('/:username/followers', authMiddleware, GET_FOLLOWERS);
+
+userRouter.get('/:username/following', authMiddleware, GET_FOLLOWING);
 
 module.exports = userRouter;

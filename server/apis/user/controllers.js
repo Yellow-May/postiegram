@@ -24,7 +24,7 @@ module.exports.GET_ALL_USERS = async (_req, res) => {
 };
 
 module.exports.GET_SINGLE_USER = async (req, res) => {
-	const { id } = req.user;
+	const { _id: id } = req.user;
 
 	const requesting_user = await UserModel.findById(id).select('username following followers');
 	const username = req.params.username;
@@ -59,7 +59,7 @@ module.exports.CHECK_AVAILABLE_USERNAME = async (req, res) => {
 };
 
 module.exports.FOLLOW_USER = async (req, res) => {
-	const { id } = req.user;
+	const { _id: id } = req.user;
 	const { user_id } = req.body;
 	const _id = uuidv4();
 
@@ -75,7 +75,7 @@ module.exports.FOLLOW_USER = async (req, res) => {
 };
 
 module.exports.UNFOLLOW_USER = async (req, res) => {
-	const { id } = req.user;
+	const { _id: id } = req.user;
 	const { _id, user_id } = req.body;
 
 	const user = await UserModel.findById(id);
@@ -90,16 +90,24 @@ module.exports.UNFOLLOW_USER = async (req, res) => {
 };
 
 module.exports.GET_FOLLOWERS = async (req, res) => {
-	const { followers: raw_followers } = req.user;
+	const { _id: id } = req.user;
+	const { username } = req.params;
 
+	const requesting_user = await UserModel.findById(id).select('username following');
+	const user = await UserModel.findOne({ username }).select('followers');
 	const followers = await Promise.all(
-		raw_followers.map(async e => {
-			const { username, profile } = await UserModel.findById(e.user_id).select('username profile');
+		user.followers.map(async e => {
+			const {
+				username,
+				profile,
+				followers: eFollowers,
+			} = await UserModel.findById(e.user_id).select('username profile followers');
 			return {
 				user_id: e.user_id,
 				username,
 				full_name: profile.full_name,
 				profile_pic: profile.profile_pic.url,
+				isFollowing: requesting_user.following.find(e => eFollowers.id(e._id)),
 			};
 		})
 	);
@@ -108,17 +116,25 @@ module.exports.GET_FOLLOWERS = async (req, res) => {
 };
 
 module.exports.GET_FOLLOWING = async (req, res) => {
-	const { following: raw_following } = req.user;
+	const { _id: id } = req.user;
+	const { username } = req.params;
 
+	const requesting_user = await UserModel.findById(id).select('username followers');
+	const user = await UserModel.findOne({ username }).select('following');
 	const following = await Promise.all(
-		raw_following.map(async e => {
-			const { username, profile } = await UserModel.findById(e.user_id).select('username profile');
+		user.following.map(async e => {
+			const {
+				username,
+				profile,
+				following: eFollowing,
+			} = await UserModel.findById(e.user_id).select('username profile following');
 			return {
 				id: e.id,
 				user_id: e.user_id,
 				username,
 				full_name: profile.full_name,
 				profile_pic: profile.profile_pic.url,
+				isFollower: requesting_user.followers.find(e => eFollowing.id(e._id)) ? true : false,
 			};
 		})
 	);
