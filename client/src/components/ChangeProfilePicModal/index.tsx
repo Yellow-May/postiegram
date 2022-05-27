@@ -1,8 +1,7 @@
 import { message, Modal, Upload, Image, PageHeader, Button } from 'antd';
 import { Dispatch, FC, SetStateAction, useState } from 'react';
 import { usePrivateAxios } from 'hooks';
-import { axiosCloudinary } from 'apis/axios';
-import { uploadAppend } from 'utils';
+import { customRequest, uploadRequest } from 'utils';
 import ImgCrop from 'antd-img-crop';
 import { UploadChangeParam } from 'antd/lib/upload';
 import { RcFile, UploadFile } from 'antd/lib/upload/interface';
@@ -38,25 +37,6 @@ const ChangeProfilePicModal: FC<ChangeProfilePicModalProps> = ({ isVisible, setV
 		setFileList(newFileList);
 	};
 
-	// custom request for the Upload to prevent initial image upload and create and attach FormData to each file for upload
-	const customRequest = ({ file, onSuccess }: any) => {
-		const formData = uploadAppend(file);
-		setTimeout(() => {
-			onSuccess(formData);
-		}, 0);
-	};
-
-	// upload function to cloudinary
-	const uploadImage = async (formData: FormData) => {
-		try {
-			const res = await axiosCloudinary('/upload', { data: formData });
-			return res.data;
-		} catch (error) {
-			console.log(error);
-			message.error('Please try again later');
-		}
-	};
-
 	// modal title prop, to navigate back when previewing
 	const onBack = () => {
 		setFileList([]);
@@ -82,7 +62,7 @@ const ChangeProfilePicModal: FC<ChangeProfilePicModalProps> = ({ isVisible, setV
 	const onOk = async () => {
 		if (fileList[0]) {
 			const file = fileList[0];
-			const data = await uploadImage(file.response);
+			const data = await uploadRequest(file.response);
 			const profile_pic = {
 				name: file.name,
 				url: data.secure_url,

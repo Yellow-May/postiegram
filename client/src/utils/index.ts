@@ -1,4 +1,7 @@
-import uploadAppend from './Cloudinary/upload';
-import destroyRequest from './Cloudinary/destroy';
+import uploadAppend from './Cloudinary/uploadAppend';
+import uploadRequest from './Cloudinary/uploadRequest';
+import destroyRequest from './Cloudinary/destroyRequest';
+import customRequest from './AntdForm/customRequest';
+import DataURIToBlob from './DateURIToBlob';
 
-export { uploadAppend, destroyRequest };
+export { uploadAppend, uploadRequest, destroyRequest, customRequest, DataURIToBlob };

@@ -2,11 +2,6 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
 
-const defaultImg =
-	process.env.NODE_ENV === 'development'
-		? 'http://localhost:5000/files/profile-images/default.png'
-		: 'https://ymay-postiegram.herokuapp.com/files/profile-images/default.png';
-
 const ProfileSchema = new mongoose.Schema({
 	full_name: {
 		type: String,
@@ -24,11 +19,7 @@ const ProfileSchema = new mongoose.Schema({
 			url: String,
 			public_id: String,
 		}),
-		default: {
-			name: 'default_profile_pic',
-			url: defaultImg,
-			public_id: '',
-		},
+		required: [true, 'Profile_pic required'],
 	},
 });
 
