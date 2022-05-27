@@ -43,13 +43,9 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 	const source = axios.CancelToken.source();
 	const username_url = location.pathname.split('/')[1];
 	const fetchUser = async () => {
-		try {
-			const res = await axiosPrivate.get(`/user/${username_url}`, { cancelToken: source.token });
-			setUser(res.data?.user);
-		} catch (error) {
-			console.log(error);
-			if (error) navigate('/not-found', { state: location });
-		}
+		const res = await axiosPrivate.get(`/user/${username_url}`, { cancelToken: source.token });
+		setUser(res.data?.user);
+		if (!res.data?.user) navigate('/not-found', { state: location });
 	};
 	useEffect(() => {
 		fetchUser();
@@ -64,13 +60,9 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 	// followloading state to handle the change in the 'Follow', 'Unfollow' or 'Follow Back" button when the request is called
 	const [followLoading, setfollowLoading] = useState(false);
 	const followRequest = async ({ url, data }: { url: string; data: { _id?: string; user_id: string } }) => {
-		try {
-			await axiosPrivate.post(url, data);
-			const res = await axiosPrivate.get(`/user${location.pathname}`);
-			setUser(res.data?.user);
-		} catch (error) {
-			console.log(error);
-		}
+		await axiosPrivate.post(url, data);
+		const res = await axiosPrivate.get(`/user${location.pathname}`);
+		setUser(res.data?.user);
 	};
 	const handleFollowRequest = () => {
 		if (user) {

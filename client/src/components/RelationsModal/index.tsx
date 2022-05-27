@@ -49,15 +49,11 @@ const RelationsModal: FC<RelationsModalProps> = ({ isUser, title, visible, close
 
 	// fetch request for followers or following
 	const fetchData = async () => {
-		try {
-			const res = await axiosPrivate(`/user/${username_url}/${title.toLowerCase()}`, {
-				cancelToken: source.token,
-			});
-			const data = res.data?.followers || res.data?.following;
-			setData(data);
-		} catch (error) {
-			console.log(error);
-		}
+		const res = await axiosPrivate(`/user/${username_url}/${title.toLowerCase()}`, {
+			cancelToken: source.token,
+		});
+		const data = res.data?.followers || res.data?.following;
+		setData(data);
 	};
 
 	// on mount

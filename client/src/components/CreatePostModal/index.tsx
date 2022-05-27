@@ -101,24 +101,20 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isVisible, setVisible }) =>
 	 * Also performs the Form validation and upload before closing the modal
 	 */
 	const onOk = async () => {
-		try {
-			const values = await form.validateFields();
-			const media = await Promise.all(
-				values.media.map(async ({ name, response }: { name: string; response: FormData }) => {
-					const data = await uploadImage(response);
-					return {
-						name,
-						url: data.secure_url,
-						public_id: data.public_id,
-					};
-				})
-			);
-			const res = await axiosPrivate.post('/post', { caption: values.caption, media });
-			message.success(res.data.message);
-			setVisible(false);
-		} catch (info) {
-			console.log('Validate Failed:', info);
-		}
+		const values = await form.validateFields();
+		const media = await Promise.all(
+			values.media.map(async ({ name, response }: { name: string; response: FormData }) => {
+				const data = await uploadImage(response);
+				return {
+					name,
+					url: data.secure_url,
+					public_id: data.public_id,
+				};
+			})
+		);
+		const res = await axiosPrivate.post('/post', { caption: values.caption, media });
+		message.success(res.data.message);
+		setVisible(false);
 	};
 
 	// reset all states and variables onClose of the modal
