@@ -4,7 +4,7 @@ const PostModel = require('./model');
 const UserModel = require('../user/model');
 
 module.exports.GET_MY_POSTS = async (req, res) => {
-	const { id } = req.user;
+	const { _id: id } = req.user;
 
 	const raw_posts = await PostModel.find({ creator_id: id })
 		.select('_id caption media createdAt')
@@ -21,10 +21,10 @@ module.exports.GET_MY_POSTS = async (req, res) => {
 };
 
 module.exports.GET_FOLLOWING_POSTS = async (req, res) => {
-	const { id } = req.user;
+	const { _id: id } = req.user;
 
-	const following = await UserModel.findById(id).select('following');
-	const ids = following.map(e => mongoose.Types.ObjectId(e.user_id));
+	const user = await UserModel.findById(id).select('following');
+	const ids = user.following.map(e => mongoose.Types.ObjectId(e.user_id));
 	const raw_posts = await PostModel.find({ creator_id: { $in: ids } })
 		.sort({ createdAt: 'desc' })
 		.exec();
@@ -50,7 +50,7 @@ module.exports.GET_FOLLOWING_POSTS = async (req, res) => {
 };
 
 module.exports.CREATE_POST = async (req, res) => {
-	const { id } = req.user;
+	const { _id: id } = req.user;
 	const { caption, media } = req.body;
 
 	await PostModel.create({ creator_id: id, caption, media });
