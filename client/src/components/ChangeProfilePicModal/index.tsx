@@ -53,6 +53,7 @@ const ChangeProfilePicModal: FC<ChangeProfilePicModalProps> = ({ isVisible, setV
 			return res.data;
 		} catch (error) {
 			console.log(error);
+			message.error('Please try again later');
 		}
 	};
 

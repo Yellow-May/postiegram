@@ -95,6 +95,7 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isVisible, setVisible }) =>
 			return res.data;
 		} catch (error) {
 			console.log(error);
+			message.error('Please try again later');
 		}
 	};
 
