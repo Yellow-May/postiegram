@@ -169,7 +169,7 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isVisible, setVisible }) =>
 						</div>
 
 						<Form.Item name='media' label='Uploads' rules={[{ required: true, message: 'Minimum of 1 upload is required' }]}>
-							<ImgCrop rotate>
+							<ImgCrop quality={0.8} rotate>
 								<Upload
 									listType='picture-card'
 									maxCount={3}

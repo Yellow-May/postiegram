@@ -101,7 +101,7 @@ const ChangeProfilePicModal: FC<ChangeProfilePicModalProps> = ({ isVisible, setV
 			{fileList.length === 1 ? (
 				<Image src={imgPreview} preview={false} width='100%' height='100%' style={{ borderRadius: '50%' }} />
 			) : (
-				<ImgCrop shape='round' rotate>
+				<ImgCrop quality={0.8} shape='round' rotate>
 					<Upload.Dragger customRequest={customRequestProfilePic} onChange={onChange}>
 						<p className='ant-upload-drag-icon'>
 							<InboxOutlined />
