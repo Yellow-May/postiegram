@@ -117,7 +117,7 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isVisible, setVisible }) =>
 		);
 		const res = await axiosPrivate.post('/post', { caption: values.caption, media });
 		message.success(res.data.message);
-		dispatch(togglePostCreated());
+		dispatch(togglePostCreated(true));
 		setVisible(false);
 	};
 

@@ -102,7 +102,7 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 	useEffect(() => {
 		if (isPostCreated) {
 			fetchUser();
-			dispatch(togglePostCreated());
+			dispatch(togglePostCreated(false));
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isPostCreated]);

@@ -10,8 +10,8 @@ export const othersSlice = createSlice({
 	name: 'others',
 	initialState,
 	reducers: {
-		togglePostCreated: state => {
-			state.isPostCreated = !state.isPostCreated;
+		togglePostCreated: (state, action) => {
+			state.isPostCreated = action.payload;
 		},
 	},
 });
