@@ -6,6 +6,8 @@ import ImgCrop from 'antd-img-crop';
 import { UploadFile, RcFile, UploadChangeParam } from 'antd/lib/upload/interface';
 import { uploadAppend } from 'utils';
 import { usePrivateAxios } from 'hooks';
+import { useAppDispatch } from 'redux/store';
+import { togglePostCreated } from 'redux/features/Others';
 
 interface CreatePostModalProps {
 	isVisible: boolean;
@@ -100,6 +102,7 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isVisible, setVisible }) =>
 	 * handles the onOk button for the modal
 	 * Also performs the Form validation and upload before closing the modal
 	 */
+	const dispatch = useAppDispatch();
 	const onOk = async () => {
 		const values = await form.validateFields();
 		const media = await Promise.all(
@@ -114,6 +117,7 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isVisible, setVisible }) =>
 		);
 		const res = await axiosPrivate.post('/post', { caption: values.caption, media });
 		message.success(res.data.message);
+		dispatch(togglePostCreated());
 		setVisible(false);
 	};
 

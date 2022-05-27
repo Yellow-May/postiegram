@@ -4,6 +4,9 @@ import { Row, Col, Typography, Button, Space, Image } from 'antd';
 import { usePrivateAxios } from 'hooks';
 import { ChangeProfilePicModal, RelationsModal } from 'components';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
+import { getIsPostCreated, togglePostCreated } from 'redux/features/Others';
+import { useAppDispatch } from 'redux/store';
 
 interface InfoSectionProps {
 	isUser: boolean;
@@ -90,6 +93,19 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 	 */
 	const [isVisible, setVisible] = useState(false);
 	const onClickProfilePic = () => setVisible(true);
+
+	/**
+	 * render page if new post is created
+	 */
+	const isPostCreated = useSelector(getIsPostCreated);
+	const dispatch = useAppDispatch();
+	useEffect(() => {
+		if (isPostCreated) {
+			fetchUser();
+			dispatch(togglePostCreated());
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isPostCreated]);
 
 	return user ? (
 		<Fragment>
