@@ -28,6 +28,11 @@ export interface FormRegisterValuesProps {
 	username: string;
 	password: string;
 	'confirm-password': string;
+	profile_pic: {
+		name: string;
+		url: string;
+		public_id: string;
+	};
 }
 
 export interface FormLoginValuesProps {

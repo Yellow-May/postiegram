@@ -9,10 +9,11 @@ const attachCookie = require('../../utils/attach-cookies');
 const retreiveCookies = require('../../utils/retreive-cookies');
 
 module.exports.REGISTER_USER = async (req, res) => {
-	const { email, username, full_name, password } = req.body;
-	if (!email || !username || !full_name || !password) throw new BadRequestError('Please provide all credentials');
+	const { email, username, full_name, password, profile_pic } = req.body;
+	if (!email || !username || !full_name || !password || !profile_pic)
+		throw new BadRequestError('Please provide all credentials');
 
-	const user = await UserModel.create({ email, username, password, profile: { full_name } });
+	const user = await UserModel.create({ email, username, password, profile: { full_name, profile_pic } });
 	const userData = {
 		id: user._id,
 		username,
