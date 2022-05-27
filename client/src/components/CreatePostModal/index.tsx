@@ -1,10 +1,9 @@
 import { FC, Dispatch, SetStateAction, MouseEvent, useState, ChangeEvent, useEffect } from 'react';
-import { axiosCloudinary } from 'apis/axios';
 import { Modal, Form, Input, Row, Col, Image, Button, Upload, message } from 'antd';
 import Picker, { IEmojiData, SKIN_TONE_MEDIUM_DARK } from 'emoji-picker-react';
 import ImgCrop from 'antd-img-crop';
 import { UploadFile, RcFile, UploadChangeParam } from 'antd/lib/upload/interface';
-import { uploadAppend } from 'utils';
+import { customRequest, uploadRequest } from 'utils';
 import { usePrivateAxios } from 'hooks';
 import { useAppDispatch } from 'redux/store';
 import { togglePostCreated } from 'redux/features/Others';
@@ -80,25 +79,6 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isVisible, setVisible }) =>
 		}
 	};
 
-	// custom request for the Upload to prevent initial image upload and create and attach FormData to each file for upload
-	const customRequest = ({ file, onSuccess }: any) => {
-		const formData = uploadAppend(file);
-		setTimeout(() => {
-			onSuccess(formData);
-		}, 0);
-	};
-
-	// upload function to cloudinary
-	const uploadImage = async (formData: FormData) => {
-		try {
-			const res = await axiosCloudinary('/upload', { data: formData });
-			return res.data;
-		} catch (error) {
-			console.log(error);
-			message.error('Please try again later');
-		}
-	};
-
 	/**
 	 * handles the onOk button for the modal
 	 * Also performs the Form validation and upload before closing the modal
@@ -108,7 +88,7 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isVisible, setVisible }) =>
 		const values = await form.validateFields();
 		const media = await Promise.all(
 			values.media.map(async ({ name, response }: { name: string; response: FormData }) => {
-				const data = await uploadImage(response);
+				const data = await uploadRequest(response);
 				return {
 					name,
 					url: data.secure_url,

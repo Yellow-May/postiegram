@@ -1,12 +1,14 @@
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { Link, useNavigate, useLocation, Location } from 'react-router-dom';
 import { Form, Input, Button, Space } from 'antd';
-import axios from 'apis/axios';
+import axios, { axiosCloudinary } from 'apis/axios';
 import { RegisterUser } from 'redux/features/Auth';
 import { useAppDispatch } from 'redux/store';
 import { FormRegisterValuesProps } from 'redux/features/Auth/types';
 import { RuleObject } from 'antd/lib/form';
 import { NamePath } from 'antd/lib/form/interface';
+import { default_profile_pic } from 'helpers';
+import { DataURIToBlob, uploadAppend } from 'utils';
 
 interface RegisterPageProps {}
 
@@ -50,6 +52,13 @@ const RegisterPage: FC<RegisterPageProps> = () => {
 	const onFinish = (values: FormRegisterValuesProps) => {
 		dispatch(RegisterUser(values));
 		navigate(!state || state?.from?.pathname === '/login' ? '/' : state?.from, { replace: true });
+	};
+
+	const request = async () => {
+		const file = DataURIToBlob(default_profile_pic);
+		const formData = uploadAppend(file, 'profile-pic');
+		const res = await axiosCloudinary('/upload', { data: formData });
+		console.log(res);
 	};
 
 	return (
