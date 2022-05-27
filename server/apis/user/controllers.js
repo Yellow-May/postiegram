@@ -144,11 +144,11 @@ module.exports.GET_FOLLOWING = async (req, res) => {
 
 module.exports.CHANGE_PROFILE_PIC = async (req, res) => {
 	const { _id: id } = req.user;
-	const { profile_pic } = req.body;
+	const { new_profile_pic } = req.body;
 
 	const user = await UserModel.findByIdAndUpdate(
 		id,
-		{ $set: { 'profile.profile_pic': profile_pic } },
+		{ $set: { 'profile.profile_pic': new_profile_pic } },
 		{ new: true, runValidators: true }
 	);
 	res.status(StatusCodes.OK).json({ message: 'Profile picture updated', user });

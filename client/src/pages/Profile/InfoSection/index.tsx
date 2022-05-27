@@ -167,7 +167,7 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 			</Row>
 
 			{isOpen.visible && <RelationsModal {...{ ...isOpen, closeModal, isUser, followRequest }} />}
-			<ChangeProfilePicModal {...{ isVisible, setVisible, fetchUser }} />
+			<ChangeProfilePicModal {...{ isVisible, setVisible, profile_pic: user.profile.profile_pic, fetchUser }} />
 		</Fragment>
 	) : (
 		<div style={{ height: 250 }}></div>

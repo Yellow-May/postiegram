@@ -3,7 +3,7 @@ import { Modal, Form, Input, Row, Col, Image, Button, Upload, message } from 'an
 import Picker, { IEmojiData, SKIN_TONE_MEDIUM_DARK } from 'emoji-picker-react';
 import ImgCrop from 'antd-img-crop';
 import { UploadFile, RcFile, UploadChangeParam } from 'antd/lib/upload/interface';
-import { customRequest, uploadRequest } from 'utils';
+import { customRequestPost, uploadRequest } from 'utils';
 import { usePrivateAxios } from 'hooks';
 import { useAppDispatch } from 'redux/store';
 import { togglePostCreated } from 'redux/features/Others';
@@ -173,7 +173,7 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isVisible, setVisible }) =>
 								<Upload
 									listType='picture-card'
 									maxCount={3}
-									customRequest={customRequest}
+									customRequest={customRequestPost}
 									onChange={onChangeUpload}
 									onPreview={onPreview}>
 									{(!form.getFieldValue('media') || (form.getFieldValue('media') as []).length < 3) && '+ Upload'}
