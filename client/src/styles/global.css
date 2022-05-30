@@ -36,3 +36,7 @@ ul.custom-menu-nav > li.ant-menu-item-selected svg,
 ul.custom-menu-nav > li.ant-menu-item-active svg {
 	fill: #1890ff;
 }
+
+.custom-post-info-modal .ant-modal-confirm-content {
+	margin-left: 0 !important;
+}

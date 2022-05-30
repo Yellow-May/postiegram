@@ -2,11 +2,15 @@ const { StatusCodes } = require('http-status-codes');
 const mongoose = require('mongoose');
 const PostModel = require('./model');
 const UserModel = require('../user/model');
+const { NotFoundError } = require('../../utils/custom-errors');
 
-module.exports.GET_MY_POSTS = async (req, res) => {
-	const { _id: id } = req.user;
+module.exports.GET_USER_POSTS = async (req, res) => {
+	const { username } = req.params;
 
-	const raw_posts = await PostModel.find({ creator_id: id })
+	const user = await UserModel.findOne({ username });
+	if (!user) throw new NotFoundError('User not found');
+
+	const raw_posts = await PostModel.find({ creator_id: user._id })
 		.select('_id caption media createdAt')
 		.sort({ createdAt: 'desc' })
 		.exec();

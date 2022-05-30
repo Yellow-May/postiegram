@@ -3,7 +3,7 @@ export enum UserRole {
 	admin = 1998,
 }
 
-type UserType = {
+export type UserType = {
 	id: string;
 	role: UserRole;
 	username: string;

@@ -2,7 +2,7 @@ const { StatusCodes } = require('http-status-codes');
 const { v4: uuidv4 } = require('uuid');
 const UserModel = require('./model');
 const PostModel = require('../post/model');
-const { UnAcceptableError } = require('../../utils/custom-errors');
+const { UnAcceptableError, NotFoundError } = require('../../utils/custom-errors');
 
 module.exports.GET_ALL_USERS = async (_req, res) => {
 	const raw_users = await UserModel.find({ role: 2001 })
@@ -25,10 +25,11 @@ module.exports.GET_ALL_USERS = async (_req, res) => {
 
 module.exports.GET_SINGLE_USER = async (req, res) => {
 	const { _id: id } = req.user;
+	const { username } = req.params;
 
 	const requesting_user = await UserModel.findById(id).select('username following followers');
-	const username = req.params.username;
-	const raw_user = await UserModel.findOne({ username, role: 2001 });
+	const raw_user = await UserModel.findOne({ username });
+	if (!raw_user) throw new NotFoundError('User not found');
 	const isFollowing = requesting_user.following.find(e => raw_user.followers.id(e._id));
 	const isFollower = requesting_user.followers.find(e => raw_user.following.id(e._id)) ? true : false;
 

@@ -1,5 +1,5 @@
 import { FC, useState, useEffect, Fragment } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Row, Col, Typography, Button, Space, Image } from 'antd';
 import { usePrivateAxios } from 'hooks';
 import { ChangeProfilePicModal, RelationsModal } from 'components';
@@ -41,14 +41,12 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 	 * also a cleanup to remove the user state to prevent memory leaks
 	 */
 	const location = useLocation();
-	const navigate = useNavigate();
 	const [user, setUser] = useState<UserInfo | null>(null);
 	const source = axios.CancelToken.source();
 	const username_url = location.pathname.split('/')[1];
 	const fetchUser = async () => {
 		const res = await axiosPrivate.get(`/user/${username_url}`, { cancelToken: source.token });
 		setUser(res.data?.user);
-		if (!res.data?.user) navigate('/not-found', { state: location });
 	};
 	useEffect(() => {
 		fetchUser();

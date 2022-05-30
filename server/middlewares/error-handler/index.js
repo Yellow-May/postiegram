@@ -36,6 +36,7 @@ module.exports = (err, _req, res, next) => {
 			message: error.message,
 		};
 	}
+
 	if (err.name === 'JsonWebTokenError') {
 		errorObj = {
 			statusCode: StatusCodes.UNAUTHORIZED,
