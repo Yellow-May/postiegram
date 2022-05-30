@@ -62,7 +62,7 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 	const [followLoading, setfollowLoading] = useState(false);
 	const followRequest = async ({ url, data }: { url: string; data: { _id?: string; user_id: string } }) => {
 		await axiosPrivate.post(url, data);
-		const res = await axiosPrivate.get(`/user${location.pathname}`);
+		const res = await axiosPrivate.get(`/user/${username_url}`);
 		setUser(res.data?.user);
 	};
 	const handleFollowRequest = () => {
