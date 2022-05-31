@@ -27,6 +27,7 @@ const SearchBar: FC<SearchBarProps> = () => {
 	const resetResults = () => {
 		setValue('');
 		setResults([]);
+		source && source.cancel();
 	};
 
 	const searchRequest = async (value: string) => {
