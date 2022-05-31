@@ -161,11 +161,21 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isVisible, setVisible }) =>
 						</Form.Item>
 						<div style={{ position: 'relative', top: -60, left: 5 }}>
 							<Button onClick={toggleEmojiPicker}>😀</Button>
-							{isOpen && (
-								<div style={{ position: 'absolute', zIndex: 30 }}>
-									<Picker onEmojiClick={onEmojiClick} skinTone={SKIN_TONE_MEDIUM_DARK} />
-								</div>
-							)}
+							<div
+								style={{
+									position: 'fixed',
+									top: 0,
+									left: 0,
+									zIndex: isOpen ? 29 : 0,
+									display: isOpen ? '' : 'none',
+									background: '#00000011',
+									width: '100%',
+									height: '100%',
+								}}
+								onClick={toggleEmojiPicker}></div>
+							<div style={{ position: 'absolute', zIndex: isOpen ? 30 : 0, opacity: isOpen ? 1 : 0 }}>
+								<Picker onEmojiClick={onEmojiClick} skinTone={SKIN_TONE_MEDIUM_DARK} />
+							</div>
 						</div>
 
 						<Form.Item name='media' label='Uploads' rules={[{ required: true, message: 'Minimum of 1 upload is required' }]}>
