@@ -40,3 +40,16 @@ ul.custom-menu-nav > li.ant-menu-item-active svg {
 .custom-post-info-modal .ant-modal-confirm-content {
 	margin-left: 0 !important;
 }
+
+.custom-search-list {
+	position: absolute;
+	top: 100%;
+	z-index: 100;
+	background: #ffffff;
+	box-shadow: 3px 3px 3px #00000033;
+	width: 100%;
+	padding: 10px;
+	border-radius: 5px;
+	max-height: 300px;
+	overflow: auto;
+}

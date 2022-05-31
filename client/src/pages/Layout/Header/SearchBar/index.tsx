@@ -1,0 +1,79 @@
+import { Avatar, Input, List } from 'antd';
+import { usePrivateAxios } from 'hooks';
+import { ChangeEvent, FC, useState } from 'react';
+import { Link } from 'react-router-dom';
+import axios, { CancelTokenSource } from 'axios';
+
+interface SearchBarProps {}
+
+type ResultType = {
+	username: string;
+	profile: {
+		full_name: string;
+		bio: string;
+		profile_pic: {
+			url: string;
+		};
+	};
+};
+
+let source: CancelTokenSource | null;
+
+const SearchBar: FC<SearchBarProps> = () => {
+	const [value, setValue] = useState('');
+	const [results, setResults] = useState<ResultType[]>([]);
+	const axiosPrivate = usePrivateAxios();
+
+	const resetResults = () => {
+		setValue('');
+		setResults([]);
+	};
+
+	const searchRequest = async (value: string) => {
+		if (source) source.cancel('Operation canceled due to new request.');
+		source = axios.CancelToken.source();
+		const res = await axiosPrivate.get(`/user/search?q=${value}`, { cancelToken: source.token });
+		setResults(res.data.users);
+	};
+
+	const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+		const { value } = e.target;
+		setValue(value);
+		value ? searchRequest(value) : resetResults();
+	};
+
+	return (
+		<div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+			<Input.Search
+				placeholder='search users...'
+				allowClear
+				value={value}
+				onChange={onChange}
+				style={{ width: 200, marginRight: 96 }}
+			/>
+
+			{results.length > 0 && (
+				<List
+					className='custom-search-list'
+					itemLayout='horizontal'
+					dataSource={results}
+					renderItem={item => (
+						<List.Item>
+							<List.Item.Meta
+								avatar={<Avatar crossOrigin='anonymous' src={item.profile.profile_pic.url} />}
+								title={
+									<Link to={`/${item.username}`} onClick={resetResults}>
+										{item.profile.full_name}
+									</Link>
+								}
+								description={item.profile.bio}
+							/>
+						</List.Item>
+					)}
+				/>
+			)}
+		</div>
+	);
+};
+
+export default SearchBar;

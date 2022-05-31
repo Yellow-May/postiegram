@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { Layout, Typography } from 'antd';
 import { Link } from 'react-router-dom';
 import HeaderMenu from './Menu';
+import SearchBar from './SearchBar';
 
 interface HeaderProps {
 	isVisible: boolean;
@@ -25,12 +26,16 @@ const Header: FC<HeaderProps> = ({ isVisible, openCreatePostModal }) => {
 					display: 'flex',
 					alignItems: 'center',
 				}}>
-				<div className='logo' style={{ flexGrow: 1 }}>
+				<div
+					className='logo'
+					style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 					<Typography.Title level={2} italic style={{ margin: 0 }}>
 						<Link to='/' style={{ color: 'inherit' }}>
 							Postiegram
 						</Link>
 					</Typography.Title>
+
+					<SearchBar />
 				</div>
 
 				<HeaderMenu {...{ isVisible, openCreatePostModal }} />

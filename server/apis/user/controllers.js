@@ -23,6 +23,19 @@ module.exports.GET_ALL_USERS = async (_req, res) => {
 	res.status(StatusCodes.OK).json({ users, nBits: users.length });
 };
 
+module.exports.SEARCH_USERS = async (req, res) => {
+	const { username } = req.user;
+	const { q } = req.query;
+
+	const users = await UserModel.find({
+		$and: [{ username: { $ne: username } }, { username: { $regex: new RegExp(q), $options: 'i' } }],
+	})
+		.select('username profile')
+		.exec();
+
+	res.status(StatusCodes.OK).json({ users });
+};
+
 module.exports.GET_SINGLE_USER = async (req, res) => {
 	const { _id: id } = req.user;
 	const { username } = req.params;
@@ -40,11 +53,13 @@ module.exports.GET_SINGLE_USER = async (req, res) => {
 		posts: (await PostModel.find({ creator_id: raw_user._id })).length,
 		followers: raw_user.followers.length,
 		following: raw_user.following.length,
+		isFollower,
+		isFollowing,
 	};
 
-	if (requesting_user.username !== username) {
-		user.isFollowing = isFollowing;
-		user.isFollower = isFollower;
+	if (requesting_user.username === username) {
+		delete user.isFollower;
+		delete user.isFollowing;
 	}
 
 	res.status(StatusCodes.OK).json({ user });

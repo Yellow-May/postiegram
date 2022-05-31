@@ -10,11 +10,14 @@ const {
 	GET_FOLLOWERS,
 	GET_FOLLOWING,
 	CHANGE_PROFILE_PIC,
+	SEARCH_USERS,
 } = require('./controllers');
 
 userRouter.post('/confirm-username', CHECK_AVAILABLE_USERNAME);
 
 userRouter.get('/', authMiddleware, GET_ALL_USERS);
+
+userRouter.get('/search', authMiddleware, SEARCH_USERS);
 
 userRouter.post('/follow', authMiddleware, FOLLOW_USER);
 

@@ -41,7 +41,7 @@ const MyPosts: FC<MyPostsProps> = () => {
 			setData([]);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [location]);
 
 	const isPostCreated = useSelector(getIsPostCreated);
 	const dispatch = useAppDispatch();
