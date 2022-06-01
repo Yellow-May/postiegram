@@ -62,7 +62,7 @@ const MyPosts: FC<MyPostsProps> = () => {
 			title: <Typography.Title level={4}>{caption}</Typography.Title>,
 			content: (
 				<div style={{ width: '100%' }}>
-					<Carousel dotPosition='bottom'>
+					<Carousel autoplay dotPosition='bottom'>
 						{media.map(({ id, url }) => (
 							<Image key={id} crossOrigin='anonymous' src={url} title={caption} width='100%' height='100%' preview={false} />
 						))}
