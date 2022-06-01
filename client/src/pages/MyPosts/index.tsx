@@ -55,6 +55,23 @@ const MyPosts: FC<MyPostsProps> = () => {
 
 	const user = useSelector(getUser);
 	const isUser = location.pathname.includes(user?.username as string);
+	const confirmModal = (id: string) => {
+		let loading = false;
+		Modal.confirm({
+			title: 'Are you sure you want to delete this Post?',
+			centered: true,
+			okButtonProps: {
+				loading,
+				onClick: async () => {
+					loading = true;
+					await axiosPrivate.delete(`/post/${id}`);
+					loading = false;
+					Modal.destroyAll();
+					fetchData();
+				},
+			},
+		});
+	};
 	const info = (post: DataType) => {
 		const { caption, id, media } = post;
 
@@ -69,11 +86,8 @@ const MyPosts: FC<MyPostsProps> = () => {
 					</Carousel>
 				</div>
 			),
-			onOk() {
-				console.log(id);
-			},
 			okText: !isUser ? '' : <DeleteFilled />,
-			okButtonProps: !isUser ? { style: { display: 'none' } } : { danger: true },
+			okButtonProps: !isUser ? { style: { display: 'none' } } : { danger: true, onClick: () => confirmModal(id) },
 			closable: true,
 			icon: null,
 			maskClosable: true,
@@ -83,7 +97,7 @@ const MyPosts: FC<MyPostsProps> = () => {
 
 	return (
 		<Fragment>
-			<Row>
+			<Row gutter={32}>
 				{data.map(post => {
 					const { caption, id, media } = post;
 					const { url } = media[0];
