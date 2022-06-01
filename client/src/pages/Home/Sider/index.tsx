@@ -29,7 +29,7 @@ const Sider: FC<SiderProps> = () => {
 								alignItems: 'start',
 								gap: 3,
 							}}>
-							<Typography.Text title='username' strong style={{ fontSize: '1.125em' }}>
+							<Typography.Text title={user?.username} strong style={{ fontSize: '1.125em' }}>
 								<Link to={`/${user?.username}`} style={{ color: 'inherit' }}>
 									{user?.username}
 								</Link>
