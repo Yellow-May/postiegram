@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { useRefreshToken } from 'hooks';
 import { useSelector } from 'react-redux';
 import { getUser } from 'redux/features/Auth';
+import { Spin } from 'antd';
 
 interface PersistLoginProps {}
 
@@ -27,7 +28,13 @@ const PersistLogin: FC<PersistLoginProps> = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	return isLoading ? <p>Loading...</p> : <Outlet />;
+	return isLoading ? (
+		<div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+			<Spin size='large' />
+		</div>
+	) : (
+		<Outlet />
+	);
 };
 
 export default PersistLogin;
