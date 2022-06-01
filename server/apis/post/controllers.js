@@ -60,3 +60,11 @@ module.exports.CREATE_POST = async (req, res) => {
 	await PostModel.create({ creator_id: id, caption, media });
 	res.status(StatusCodes.CREATED).json({ message: 'Post successfully created' });
 };
+
+module.exports.DELETE_POST = async (req, res) => {
+	const { _id: id } = req.user;
+	const { post_id } = req.params;
+
+	await PostModel.deleteOne({ creator_id: id, _id: post_id });
+	res.status(StatusCodes.OK).json({ message: 'Post deleted' });
+};
