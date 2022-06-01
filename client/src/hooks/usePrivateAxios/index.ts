@@ -32,7 +32,7 @@ const usePrivateAxios = () => {
 					return axios(prevRequest);
 				}
 				if (error?.response?.status === 404) {
-					navigate('/not-found', { state: { from: location } });
+					navigate('/not-found', { state: { from: location }, replace: true });
 				}
 				return Promise.reject(error);
 			}
