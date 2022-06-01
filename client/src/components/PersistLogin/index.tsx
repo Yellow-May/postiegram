@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { useRefreshToken } from 'hooks';
 import { useSelector } from 'react-redux';
 import { getUser } from 'redux/features/Auth';
-import { Spin } from 'antd';
+import { Layout, Spin } from 'antd';
 
 interface PersistLoginProps {}
 
@@ -29,9 +29,9 @@ const PersistLogin: FC<PersistLoginProps> = () => {
 	}, []);
 
 	return isLoading ? (
-		<div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+		<Layout.Content style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 			<Spin size='large' />
-		</div>
+		</Layout.Content>
 	) : (
 		<Outlet />
 	);
