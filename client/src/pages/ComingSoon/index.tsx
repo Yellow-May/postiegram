@@ -1,4 +1,4 @@
-import { Button, Layout, Typography } from 'antd';
+import { Button, Layout, Result } from 'antd';
 import { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,10 +8,16 @@ const ComingSoonPage: FC<ComingSoonPageProps> = () => {
 	const navigate = useNavigate();
 
 	return (
-		<Layout.Content
-			style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-			<Typography.Title>Coming Soon!!!</Typography.Title>
-			<Button onClick={() => navigate(-1)}>Return Back</Button>
+		<Layout.Content style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+			<Result
+				title='Coming Soon'
+				subTitle='Feature coming soon'
+				extra={
+					<Button type='primary' onClick={() => navigate('/', { replace: true })}>
+						Back Home
+					</Button>
+				}
+			/>
 		</Layout.Content>
 	);
 };
