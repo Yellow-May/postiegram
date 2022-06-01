@@ -1,5 +1,5 @@
 import { FC, Dispatch, SetStateAction, MouseEvent, useState, ChangeEvent, useEffect } from 'react';
-import { Modal, Form, Input, Row, Col, Image, Button, Upload, message } from 'antd';
+import { Modal, Form, Input, Row, Col, Image, Button, Upload, message, Spin } from 'antd';
 import Picker, { IEmojiData, SKIN_TONE_MEDIUM_DARK } from 'emoji-picker-react';
 import ImgCrop from 'antd-img-crop';
 import { UploadFile, RcFile, UploadChangeParam } from 'antd/lib/upload/interface';
@@ -7,6 +7,7 @@ import { customRequestPost, uploadRequest } from 'utils';
 import { usePrivateAxios } from 'hooks';
 import { useAppDispatch } from 'redux/store';
 import { togglePostCreated } from 'redux/features/Others';
+import axios from 'axios';
 
 interface CreatePostModalProps {
 	isVisible: boolean;
@@ -24,6 +25,7 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isVisible, setVisible }) =>
 	const [form] = Form.useForm();
 	const [imgPreview, setPreview] = useState<string | null>(null);
 	const [isOpen, setisOpen] = useState(false);
+	const [loading, setLoading] = useState(false);
 	const axiosPrivate = usePrivateAxios();
 
 	// handles the adding of emoji to the Input.TextArea
@@ -84,11 +86,13 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isVisible, setVisible }) =>
 	 * Also performs the Form validation and upload before closing the modal
 	 */
 	const dispatch = useAppDispatch();
+	const source = axios.CancelToken.source();
 	const onOk = async () => {
+		setLoading(true);
 		const values = await form.validateFields();
 		const media = await Promise.all(
 			values.media.map(async ({ name, response }: { name: string; response: FormData }) => {
-				const data = await uploadRequest(response);
+				const data = await uploadRequest(response, source);
 				return {
 					name,
 					url: data.secure_url,
@@ -96,9 +100,10 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isVisible, setVisible }) =>
 				};
 			})
 		);
-		const res = await axiosPrivate.post('/post', { caption: values.caption, media });
+		const res = await axiosPrivate.post('/post', { caption: values.caption, media }, { cancelToken: source.token });
 		message.success(res.data.message);
 		dispatch(togglePostCreated(true));
+		setLoading(false);
 		setVisible(false);
 	};
 
@@ -106,6 +111,7 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isVisible, setVisible }) =>
 	const onCancel = () => {
 		setPreview(null);
 		setisOpen(false);
+		source.cancel();
 		form.resetFields();
 		setVisible(false);
 	};
@@ -120,6 +126,7 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isVisible, setVisible }) =>
 		forceRender: true,
 		onCancel,
 		onOk,
+		okButtonProps: { loading },
 	};
 
 	useEffect(() => {
@@ -130,69 +137,82 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isVisible, setVisible }) =>
 
 	return (
 		<Modal {...modalProps}>
-			<Row>
-				<Col {...{ sm: 11, md: 11, lg: 11 }}>
-					<div
-						style={{
-							width: 390,
-							height: 390,
-							border: 'thin solid #e3e3e3',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-						}}>
-						{imgPreview ? <Image src={imgPreview} preview={false} width='100%' height='100%' /> : 'Upload an image or video'}
-					</div>
-				</Col>
-
-				<Col {...{ sm: 13, md: 13, lg: 13 }}>
-					<Form
-						form={form}
-						layout='vertical'
-						name='create-post-form'
-						style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-						<Form.Item name='caption' label='Enter Caption' rules={[{ required: true, message: 'Caption is required' }]}>
-							<Input.TextArea
-								showCount={{ formatter }}
-								maxLength={150}
-								onChange={onChangeTextArea}
-								style={{ height: 150 }}
-							/>
-						</Form.Item>
-						<div style={{ position: 'relative', top: -60, left: 5 }}>
-							<Button onClick={toggleEmojiPicker}>😀</Button>
-							<div
-								style={{
-									position: 'fixed',
-									top: 0,
-									left: 0,
-									zIndex: isOpen ? 29 : 0,
-									display: isOpen ? '' : 'none',
-									background: '#00000011',
-									width: '100%',
-									height: '100%',
-								}}
-								onClick={toggleEmojiPicker}></div>
-							<div style={{ position: 'absolute', zIndex: isOpen ? 30 : 0, opacity: isOpen ? 1 : 0 }}>
-								<Picker onEmojiClick={onEmojiClick} skinTone={SKIN_TONE_MEDIUM_DARK} />
-							</div>
+			{!loading ? (
+				<Row>
+					<Col {...{ sm: 11, md: 11, lg: 11 }}>
+						<div
+							style={{
+								width: 390,
+								height: 390,
+								border: 'thin solid #e3e3e3',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+							}}>
+							{imgPreview ? (
+								<Image src={imgPreview} preview={false} width='100%' height='100%' />
+							) : (
+								'Upload an image or video'
+							)}
 						</div>
+					</Col>
 
-						<Form.Item name='media' label='Uploads' rules={[{ required: true, message: 'Minimum of 1 upload is required' }]}>
-							<ImgCrop quality={0.8} rotate>
-								<Upload
-									listType='picture-card'
-									maxCount={3}
-									customRequest={customRequestPost}
-									onChange={onChangeUpload}
-									onPreview={onPreview}>
-									{(!form.getFieldValue('media') || (form.getFieldValue('media') as []).length < 3) && '+ Upload'}
-								</Upload>
-							</ImgCrop>
-						</Form.Item>
-					</Form>
-				</Col>
-			</Row>
+					<Col {...{ sm: 13, md: 13, lg: 13 }}>
+						<Form
+							form={form}
+							layout='vertical'
+							name='create-post-form'
+							style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+							<Form.Item name='caption' label='Enter Caption' rules={[{ required: true, message: 'Caption is required' }]}>
+								<Input.TextArea
+									showCount={{ formatter }}
+									maxLength={150}
+									onChange={onChangeTextArea}
+									style={{ height: 150 }}
+								/>
+							</Form.Item>
+							<div style={{ position: 'relative', top: -60, left: 5 }}>
+								<Button onClick={toggleEmojiPicker}>😀</Button>
+								<div
+									style={{
+										position: 'fixed',
+										top: 0,
+										left: 0,
+										zIndex: isOpen ? 29 : 0,
+										display: isOpen ? '' : 'none',
+										background: '#00000011',
+										width: '100%',
+										height: '100%',
+									}}
+									onClick={toggleEmojiPicker}></div>
+								<div style={{ position: 'absolute', zIndex: isOpen ? 30 : 0, opacity: isOpen ? 1 : 0 }}>
+									<Picker onEmojiClick={onEmojiClick} skinTone={SKIN_TONE_MEDIUM_DARK} />
+								</div>
+							</div>
+
+							<Form.Item
+								name='media'
+								label='Uploads'
+								rules={[{ required: true, message: 'Minimum of 1 upload is required' }]}>
+								<ImgCrop quality={0.8} rotate>
+									<Upload
+										listType='picture-card'
+										maxCount={3}
+										customRequest={customRequestPost}
+										onChange={onChangeUpload}
+										onPreview={onPreview}>
+										{(!form.getFieldValue('media') || (form.getFieldValue('media') as []).length < 3) && '+ Upload'}
+									</Upload>
+								</ImgCrop>
+							</Form.Item>
+						</Form>
+					</Col>
+				</Row>
+			) : (
+				<div style={{ height: 360, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+					<Spin size='large' />
+				</div>
+			)}
 		</Modal>
 	);
 };

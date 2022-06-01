@@ -8,6 +8,7 @@ import { RcFile, UploadFile } from 'antd/lib/upload/interface';
 import { InboxOutlined } from '@ant-design/icons';
 import { useAppDispatch } from 'redux/store';
 import { updateUserInfo } from 'redux/features/Auth';
+import axios from 'axios';
 
 interface ChangeProfilePicModalProps {
 	isVisible: boolean;
@@ -23,6 +24,7 @@ interface ChangeProfilePicModalProps {
 const ChangeProfilePicModal: FC<ChangeProfilePicModalProps> = ({ isVisible, setVisible, profile_pic, fetchUser }) => {
 	const [imgPreview, setPreview] = useState('');
 	const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
+	const [loading, setLoading] = useState(false);
 	const axiosPrivate = usePrivateAxios();
 	const dispatch = useAppDispatch();
 
@@ -54,9 +56,12 @@ const ChangeProfilePicModal: FC<ChangeProfilePicModalProps> = ({ isVisible, setV
 	);
 
 	// reset all states and variables onClose of the modal
+	const source = axios.CancelToken.source();
 	const onCancel = () => {
 		setPreview('');
 		setFileList([]);
+		setLoading(false);
+		source.cancel();
 		setVisible(false);
 	};
 
@@ -66,15 +71,16 @@ const ChangeProfilePicModal: FC<ChangeProfilePicModalProps> = ({ isVisible, setV
 	 */
 	const onOk = async () => {
 		if (fileList[0]) {
+			setLoading(true);
 			const file = fileList[0];
 			await destroyRequest(profile_pic.public_id);
-			const data = await uploadRequest(file.response);
+			const data = await uploadRequest(file.response, source);
 			const new_profile_pic = {
 				name: file.name,
 				url: data.secure_url,
 				public_id: data.public_id,
 			};
-			const res = await axiosPrivate.post('/user/update-profile-pic', { new_profile_pic });
+			const res = await axiosPrivate.post('/user/update-profile-pic', { new_profile_pic }, { cancelToken: source.token });
 			message.success(res.data.message);
 			dispatch(updateUserInfo({ profile: res.data.user.profile }));
 			fetchUser();
@@ -90,7 +96,7 @@ const ChangeProfilePicModal: FC<ChangeProfilePicModalProps> = ({ isVisible, setV
 		onCancel,
 		onOk,
 		footer: [
-			<Button key={1} type='primary' onClick={onOk}>
+			<Button key={1} type='primary' loading={loading} onClick={onOk}>
 				Update Profile Pic
 			</Button>,
 		],
@@ -99,7 +105,9 @@ const ChangeProfilePicModal: FC<ChangeProfilePicModalProps> = ({ isVisible, setV
 	return (
 		<Modal {...modalProps}>
 			{fileList.length === 1 ? (
-				<Image src={imgPreview} preview={false} width='100%' height='100%' style={{ borderRadius: '50%' }} />
+				<div>
+					<Image src={imgPreview} preview={false} width='100%' height='100%' style={{ borderRadius: '50%' }} />
+				</div>
 			) : (
 				<ImgCrop quality={0.8} shape='round' rotate>
 					<Upload.Dragger customRequest={customRequestProfilePic} onChange={onChange}>

@@ -1,7 +1,7 @@
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { Link, useNavigate, useLocation, Location } from 'react-router-dom';
 import { Form, Input, Button, Space } from 'antd';
-import axios from 'apis/axios';
+import axios from 'axios';
 import { RegisterUser } from 'redux/features/Auth';
 import { useAppDispatch } from 'redux/store';
 import { FormRegisterValuesProps } from 'redux/features/Auth/types';
@@ -21,6 +21,7 @@ const RegisterPage: FC<RegisterPageProps> = () => {
 	const location = useLocation();
 	const state = location.state as LocationState;
 	const dispatch = useAppDispatch();
+	const source = axios.CancelToken.source();
 
 	// antd form rule to check if username is unique
 	const checkIfUsernameIsAvailable = () => ({
@@ -52,7 +53,7 @@ const RegisterPage: FC<RegisterPageProps> = () => {
 	const profilePicRequest = async () => {
 		const file = DataURIToBlob(default_profile_pic);
 		const formData = uploadAppend(file, 'profile-pic');
-		const data = await uploadRequest(formData);
+		const data = await uploadRequest(formData, source);
 		return {
 			name: 'default_profile_pic',
 			url: data.secure_url,
@@ -66,6 +67,13 @@ const RegisterPage: FC<RegisterPageProps> = () => {
 		dispatch(RegisterUser({ ...values, profile_pic }));
 		navigate(!state || state?.from?.pathname === '/login' ? '/' : state?.from, { replace: true });
 	};
+
+	useEffect(() => {
+		return () => {
+			source.cancel();
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	return (
 		<main
