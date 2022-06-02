@@ -1,18 +1,57 @@
-import { FC } from 'react';
-import { Avatar, Layout, Space, Image, Typography } from 'antd';
+import { FC, useEffect, useState } from 'react';
+import { Avatar, Layout, Space, Image, Typography, List, Divider, Button } from 'antd';
 import { useSelector } from 'react-redux';
 import { getUser } from 'redux/features/Auth';
 import { Link } from 'react-router-dom';
+import { usePrivateAxios } from 'hooks';
+import axios from 'axios';
 
-interface SiderProps {}
+interface SiderProps {
+	fetchData: () => Promise<void>;
+}
 
-const Sider: FC<SiderProps> = () => {
+type BotUserType = {
+	id: string;
+	username: string;
+	profile: {
+		full_name: string;
+		profile_pic: {
+			url: string;
+		};
+	};
+	isFollowing: boolean;
+};
+
+const Sider: FC<SiderProps> = ({ fetchData }) => {
 	const user = useSelector(getUser);
+	const [botUsers, setbotUsers] = useState<BotUserType[]>([]);
+	const source = axios.CancelToken.source();
+
+	const axiosPrivate = usePrivateAxios();
+	const fetchBots = async () => {
+		const res = await axiosPrivate('/user/bots', { cancelToken: source.token });
+		setbotUsers(res.data.users);
+	};
+	useEffect(() => {
+		fetchBots();
+
+		return () => {
+			source.cancel();
+			setbotUsers([]);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	const handleFollowRequest = async (user_id: string) => {
+		await axiosPrivate.post('/user/follow', { user_id }, { cancelToken: source.token });
+		await fetchBots();
+		await fetchData();
+	};
 
 	return (
 		<Layout.Sider style={{ backgroundColor: '#e3e3e3', padding: '24px 0 0 24px' }}>
 			<div style={{ marginBottom: 16 }}>
-				<div style={{ display: 'flex', alignItems: 'center' }}>
+				<div style={{ display: 'flex', alignItems: 'center', marginBottom: 25 }}>
 					<Space style={{ flexGrow: 1 }}>
 						<Avatar
 							src={
@@ -40,6 +79,28 @@ const Sider: FC<SiderProps> = () => {
 						</div>
 					</Space>
 				</div>
+
+				<Divider orientation='left'>Bots Suggestions</Divider>
+
+				<List
+					itemLayout='horizontal'
+					size='small'
+					dataSource={botUsers.slice(0, 4)}
+					renderItem={bot => (
+						<List.Item
+							actions={[
+								<Button type='primary' size='small' onClick={() => handleFollowRequest(bot.id)}>
+									follow
+								</Button>,
+							]}>
+							<List.Item.Meta
+								avatar={<Avatar crossOrigin='anonymous' src={bot.profile.profile_pic.url} />}
+								title={<Link to={`/${bot.username}`}>{bot.username}</Link>}
+								description={bot.profile.full_name}
+							/>
+						</List.Item>
+					)}
+				/>
 			</div>
 			<Layout.Footer
 				style={{

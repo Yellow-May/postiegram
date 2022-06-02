@@ -40,7 +40,7 @@ const HomePage: FC<HomePageProps> = () => {
 
 	return (
 		<Fragment>
-			<Layout.Content style={{ overflow: 'auto' }}>
+			<Layout.Content style={{ overflow: 'auto', paddingBottom: 32 }}>
 				<Space direction='vertical' size='large' style={{ display: 'flex', minHeight: 1024 }}>
 					<div className='stories'>Stories Coming Soon!</div>
 
@@ -87,7 +87,7 @@ const HomePage: FC<HomePageProps> = () => {
 				</Space>
 			</Layout.Content>
 
-			<Sider />
+			<Sider {...{ fetchData }} />
 		</Fragment>
 	);
 };

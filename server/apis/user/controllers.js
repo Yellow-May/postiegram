@@ -169,3 +169,21 @@ module.exports.CHANGE_PROFILE_PIC = async (req, res) => {
 	);
 	res.status(StatusCodes.OK).json({ message: 'Profile picture updated', user });
 };
+
+module.exports.GET_BOT_USERS = async (req, res) => {
+	const { _id: id } = req.user;
+
+	const requesting_user = await UserModel.findById(id).select('following');
+	const raw_users = await UserModel.find({ role: 1001 });
+
+	const users = raw_users
+		.map(user => ({
+			id: user._id,
+			username: user.username,
+			profile: user.profile,
+			isFollowing: requesting_user.following.find(e => user.followers.id(e._id)) ? true : false,
+		}))
+		.filter(e => !e.isFollowing);
+
+	res.status(StatusCodes.OK).json({ users });
+};

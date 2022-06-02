@@ -11,24 +11,20 @@ const {
 	GET_FOLLOWING,
 	CHANGE_PROFILE_PIC,
 	SEARCH_USERS,
+	GET_BOT_USERS,
 } = require('./controllers');
 
-userRouter.post('/confirm-username', CHECK_AVAILABLE_USERNAME);
-
 userRouter.get('/', authMiddleware, GET_ALL_USERS);
-
 userRouter.get('/search', authMiddleware, SEARCH_USERS);
+userRouter.get('/bots', authMiddleware, GET_BOT_USERS);
 
+userRouter.post('/confirm-username', CHECK_AVAILABLE_USERNAME);
 userRouter.post('/follow', authMiddleware, FOLLOW_USER);
-
 userRouter.post('/unfollow', authMiddleware, UNFOLLOW_USER);
-
 userRouter.post('/update-profile-pic', authMiddleware, CHANGE_PROFILE_PIC);
 
 userRouter.get('/:username', authMiddleware, GET_SINGLE_USER);
-
 userRouter.get('/:username/followers', authMiddleware, GET_FOLLOWERS);
-
 userRouter.get('/:username/following', authMiddleware, GET_FOLLOWING);
 
 module.exports = userRouter;
