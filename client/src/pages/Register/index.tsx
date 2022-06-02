@@ -2,6 +2,7 @@ import { FC, useEffect } from 'react';
 import { Link, useNavigate, useLocation, Location } from 'react-router-dom';
 import { Form, Input, Button, Space } from 'antd';
 import axios from 'axios';
+import axiosInstance from 'apis/axios';
 import { RegisterUser } from 'redux/features/Auth';
 import { useAppDispatch } from 'redux/store';
 import { FormRegisterValuesProps } from 'redux/features/Auth/types';
@@ -27,7 +28,7 @@ const RegisterPage: FC<RegisterPageProps> = () => {
 	const checkIfUsernameIsAvailable = () => ({
 		async validator(_: RuleObject, value: any) {
 			try {
-				await axios.post('/user/confirm-username', {
+				await axiosInstance.post('/user/confirm-username', {
 					username: value.trim(),
 				});
 				return Promise.resolve();

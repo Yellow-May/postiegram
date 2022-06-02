@@ -59,8 +59,10 @@ ul.custom-menu-nav > li.ant-menu-item-active svg {
 }
 
 .custom-post-card .ant-card-body .custom-carousel-wrapper,
-.custom-carousel-wrapper {
+.custom-carousel-wrapper,
+.custom-img-wrapper {
 	display: flex !important;
 	justify-content: center;
+	align-items: center;
 	background-color: #000000fe;
 }

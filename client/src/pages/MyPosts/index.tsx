@@ -106,13 +106,13 @@ const MyPosts: FC<MyPostsProps> = () => {
 
 					return (
 						<Col key={id} {...{ xs: 8, sm: 8, md: 8, lg: 8 }}>
-							<div style={{ width: '100%' }}>
+							<div className='custom-img-wrapper' style={{ height: 320 }}>
 								<Image
 									crossOrigin='anonymous'
 									src={url}
 									alt={caption}
 									title={caption}
-									height={300}
+									width='100%'
 									preview={false}
 									style={{ cursor: 'pointer' }}
 									onClick={() => info(post)}
