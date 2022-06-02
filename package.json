@@ -8,7 +8,8 @@
 		"dev:server": "nodemon server",
 		"dev:client": "yarn --cwd client start",
 		"dev": "concurrently \"yarn dev:server\" \"yarn dev:client\"",
-		"heroku-postbuild": "YARN_CONFIG_PRODUCTION=false yarn install --cwd client && yarn --cwd client build"
+		"heroku-postbuild": "YARN_CONFIG_PRODUCTION=false yarn install --cwd client && yarn --cwd client build",
+		"generate:bots": "node populate/bots"
 	},
 	"devDependencies": {
 		"eslint": "^8.14.0",

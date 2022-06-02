@@ -1,0 +1,122 @@
+[
+	{
+		"email": "bot1@botmail.com",
+		"username": "bot_one",
+		"password": "bot1IsHere",
+		"role": 1001,
+		"profile": {
+			"full_name": "Bot One",
+			"bio": "I am bot one",
+			"profile_pic": {
+				"name": "bot",
+				"url": "https://ymay-postiegram.herokuapp.com/files/profile-pic/bot-image.png",
+				"public_id": "1"
+			}
+		}
+	},
+	{
+		"email": "bot2@botmail.com",
+		"username": "bot_two",
+		"password": "bot2IsHere",
+		"role": 1001,
+		"profile": {
+			"full_name": "Bot Two",
+			"bio": "I am bot two",
+			"profile_pic": {
+				"name": "bot",
+				"url": "https://ymay-postiegram.herokuapp.com/files/profile-pic/bot-image.png",
+				"public_id": "2"
+			}
+		}
+	},
+	{
+		"email": "bot3@botmail.com",
+		"username": "bot_three",
+		"password": "bot3IsHere",
+		"role": 1001,
+		"profile": {
+			"full_name": "Bot Three",
+			"bio": "I am bot three",
+			"profile_pic": {
+				"name": "bot",
+				"url": "https://ymay-postiegram.herokuapp.com/files/profile-pic/bot-image.png",
+				"public_id": "3"
+			}
+		}
+	},
+	{
+		"email": "bot4@botmail.com",
+		"username": "bot_four",
+		"password": "bot4IsHere",
+		"role": 1001,
+		"profile": {
+			"full_name": "Bot Four",
+			"bio": "I am bot four",
+			"profile_pic": {
+				"name": "bot",
+				"url": "https://ymay-postiegram.herokuapp.com/files/profile-pic/bot-image.png",
+				"public_id": "4"
+			}
+		}
+	},
+	{
+		"email": "bot5@botmail.com",
+		"username": "bot_five",
+		"password": "bot5IsHere",
+		"role": 1001,
+		"profile": {
+			"full_name": "Bot Five",
+			"bio": "I am bot five",
+			"profile_pic": {
+				"name": "bot",
+				"url": "https://ymay-postiegram.herokuapp.com/files/profile-pic/bot-image.png",
+				"public_id": "5"
+			}
+		}
+	},
+	{
+		"email": "bot6@botmail.com",
+		"username": "bot_six",
+		"password": "bot6IsHere",
+		"role": 1001,
+		"profile": {
+			"full_name": "Bot Six",
+			"bio": "I am bot six",
+			"profile_pic": {
+				"name": "bot",
+				"url": "https://ymay-postiegram.herokuapp.com/files/profile-pic/bot-image.png",
+				"public_id": "6"
+			}
+		}
+	},
+	{
+		"email": "bot7@botmail.com",
+		"username": "bot_seven",
+		"password": "bot7IsHere",
+		"role": 1001,
+		"profile": {
+			"full_name": "Bot Seven",
+			"bio": "I am bot seven",
+			"profile_pic": {
+				"name": "bot",
+				"url": "https://ymay-postiegram.herokuapp.com/files/profile-pic/bot-image.png",
+				"public_id": "7"
+			}
+		}
+	},
+	{
+		"email": "bot8@botmail.com",
+		"username": "bot_eight",
+		"password": "bot8IsHere",
+		"role": 1001,
+		"profile": {
+			"full_name": "Bot Eight",
+			"bio": "I am bot eight",
+			"profile_pic": {
+				"name": "bot",
+				"url": "https://ymay-postiegram.herokuapp.com/files/profile-pic/bot-image.png",
+				"public_id": "8"
+			}
+		}
+	}
+]

@@ -32,6 +32,7 @@ app.use(
 app.use(cookieParser());
 app.use(xss());
 app.use(cors(corsOptions));
+app.use('/files', express.static(path.resolve(root.path, 'files')));
 app.use('/api', apiRouter);
 
 // serve static files

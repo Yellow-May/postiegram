@@ -56,7 +56,7 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 			setUser(null);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isUser]);
+	}, [location]);
 
 	// followloading state to handle the change in the 'Follow', 'Unfollow' or 'Follow Back" button when the request is called
 	const [followLoading, setfollowLoading] = useState(false);

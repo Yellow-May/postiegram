@@ -78,10 +78,12 @@ const MyPosts: FC<MyPostsProps> = () => {
 		Modal.info({
 			title: <Typography.Title level={4}>{caption}</Typography.Title>,
 			content: (
-				<div style={{ width: '100%' }}>
+				<div>
 					<Carousel autoplay dotPosition='bottom'>
 						{media.map(({ id, url }) => (
-							<Image key={id} crossOrigin='anonymous' src={url} title={caption} width='100%' height='100%' preview={false} />
+							<div key={id} className='custom-carousel-wrapper'>
+								<Image crossOrigin='anonymous' src={url} title={caption} height={320} preview={false} />
+							</div>
 						))}
 					</Carousel>
 				</div>
@@ -97,24 +99,25 @@ const MyPosts: FC<MyPostsProps> = () => {
 
 	return (
 		<Fragment>
-			<Row gutter={32}>
+			<Row gutter={28}>
 				{data.map(post => {
 					const { caption, id, media } = post;
 					const { url } = media[0];
 
 					return (
 						<Col key={id} {...{ xs: 8, sm: 8, md: 8, lg: 8 }}>
-							<Image
-								crossOrigin='anonymous'
-								src={url}
-								alt={caption}
-								title={caption}
-								width='100%'
-								height='100%'
-								preview={false}
-								style={{ cursor: 'pointer' }}
-								onClick={() => info(post)}
-							/>
+							<div style={{ width: '100%' }}>
+								<Image
+									crossOrigin='anonymous'
+									src={url}
+									alt={caption}
+									title={caption}
+									height={300}
+									preview={false}
+									style={{ cursor: 'pointer' }}
+									onClick={() => info(post)}
+								/>
+							</div>
 						</Col>
 					);
 				})}

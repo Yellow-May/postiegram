@@ -56,7 +56,7 @@ const UserSchema = new mongoose.Schema(
 		role: {
 			type: Number,
 			enum: {
-				values: [2001, 1998],
+				values: [2001, 1998, 1001],
 				message: '{VALUE} is not supported',
 			},
 			default: 2001,
