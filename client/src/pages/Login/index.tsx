@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { Link, useNavigate, useLocation, Location } from 'react-router-dom';
-import { Form, Input, Button, Space } from 'antd';
+import { Form, Input, Button, Space, Typography } from 'antd';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { LoginUser } from 'redux/features/Auth';
 import { useAppDispatch } from 'redux/store';
@@ -36,6 +36,13 @@ const LoginPage: FC<LoginPageProps> = () => {
 				backgroundColor: '#ffffff',
 			}}>
 			<Space direction='vertical' style={{ width: 360, maxWidth: '95%' }}>
+				<Typography.Title
+					type='secondary'
+					level={2}
+					style={{ textAlign: 'center', border: 'thin solid #e3e3e3', padding: 8, margin: 0 }}>
+					Login
+				</Typography.Title>
+
 				<Form
 					name='login'
 					className='login-form'
