@@ -15,6 +15,16 @@ const MediaSchema = new mongoose.Schema({
 	},
 });
 
+const LikesSchema = new mongoose.Schema(
+	{
+		user_id: {
+			type: mongoose.SchemaTypes.ObjectId,
+			ref: 'User',
+		},
+	},
+	{ timestamps: true }
+);
+
 const PostSchema = new mongoose.Schema(
 	{
 		creator_id: {
@@ -30,6 +40,9 @@ const PostSchema = new mongoose.Schema(
 		media: {
 			type: [MediaSchema],
 			required: [true, 'Please provide 1 or more media'],
+		},
+		likes: {
+			type: [LikesSchema],
 		},
 	},
 	{ timestamps: true }
