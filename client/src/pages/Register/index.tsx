@@ -1,6 +1,6 @@
 import { FC, useEffect } from 'react';
 import { Link, useNavigate, useLocation, Location } from 'react-router-dom';
-import { Form, Input, Button, Space } from 'antd';
+import { Form, Input, Button, Space, Typography } from 'antd';
 import axios from 'axios';
 import axiosInstance from 'apis/axios';
 import { RegisterUser } from 'redux/features/Auth';
@@ -86,6 +86,13 @@ const RegisterPage: FC<RegisterPageProps> = () => {
 				backgroundColor: '#ffffff',
 			}}>
 			<Space direction='vertical' style={{ width: 480, maxWidth: '95%' }}>
+				<Typography.Title
+					type='secondary'
+					level={2}
+					style={{ textAlign: 'center', border: 'thin solid #e3e3e3', padding: 8, margin: 0 }}>
+					Create Account
+				</Typography.Title>
+
 				<Form
 					name='registration'
 					className='register-form'
