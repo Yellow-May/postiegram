@@ -4,10 +4,10 @@ import { usePrivateAxios } from 'hooks';
 import { useSelector } from 'react-redux';
 import { getIsPostCreated, togglePostCreated } from 'redux/features/Others';
 import { useAppDispatch } from 'redux/store';
-import { Col, Row, Image, Modal, Carousel, Typography } from 'antd';
-import { DeleteFilled } from '@ant-design/icons';
-import { useLocation } from 'react-router-dom';
+import { Col, Row, Image } from 'antd';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { getUser } from 'redux/features/Auth';
+import { PostModal } from 'components';
 
 interface MyPostsProps {}
 
@@ -16,11 +16,13 @@ type MediaType = {
 	url: string;
 };
 
-type DataType = {
+export type DataType = {
 	id: string;
 	caption: string;
 	created_at: string;
 	media: MediaType[];
+	likes: { username: string; profile_pic: string }[];
+	like_id?: string;
 };
 
 const MyPosts: FC<MyPostsProps> = () => {
@@ -55,47 +57,7 @@ const MyPosts: FC<MyPostsProps> = () => {
 
 	const user = useSelector(getUser);
 	const isUser = location.pathname.includes(user?.username as string);
-	const confirmModal = (id: string) => {
-		let loading = false;
-		Modal.confirm({
-			title: 'Are you sure you want to delete this Post?',
-			centered: true,
-			okButtonProps: {
-				loading,
-				onClick: async () => {
-					loading = true;
-					await axiosPrivate.delete(`/post/${id}`);
-					loading = false;
-					Modal.destroyAll();
-					fetchData();
-				},
-			},
-		});
-	};
-	const info = (post: DataType) => {
-		const { caption, id, media } = post;
-
-		Modal.info({
-			title: <Typography.Title level={4}>{caption}</Typography.Title>,
-			content: (
-				<div>
-					<Carousel autoplay dotPosition='bottom'>
-						{media.map(({ id, url }) => (
-							<div key={id} className='custom-carousel-wrapper'>
-								<Image crossOrigin='anonymous' src={url} title={caption} height={320} preview={false} />
-							</div>
-						))}
-					</Carousel>
-				</div>
-			),
-			okText: !isUser ? '' : <DeleteFilled />,
-			okButtonProps: !isUser ? { style: { display: 'none' } } : { danger: true, onClick: () => confirmModal(id) },
-			closable: true,
-			icon: null,
-			maskClosable: true,
-			className: 'custom-post-info-modal',
-		});
-	};
+	const navigate = useNavigate();
 
 	return (
 		<Fragment>
@@ -115,13 +77,15 @@ const MyPosts: FC<MyPostsProps> = () => {
 									width='100%'
 									preview={false}
 									style={{ cursor: 'pointer' }}
-									onClick={() => info(post)}
+									onClick={() => navigate(`?post_id=${id}&&post_modal=1`)}
 								/>
 							</div>
 						</Col>
 					);
 				})}
 			</Row>
+
+			<PostModal {...{ isUser, fetchData, username_url }} />
 		</Fragment>
 	);
 };

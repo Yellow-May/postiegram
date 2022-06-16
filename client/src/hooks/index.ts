@@ -1,4 +1,5 @@
 import useRefreshToken from './useRefreshToken';
 import usePrivateAxios from './usePrivateAxios';
+import useQuery from './useQuery';
 
-export { useRefreshToken, usePrivateAxios };
+export { useRefreshToken, usePrivateAxios, useQuery };

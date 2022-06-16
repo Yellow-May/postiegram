@@ -5,6 +5,7 @@ import Sider from './Sider';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { PostedSince } from 'utils';
+import { LikePost } from 'components';
 
 interface HomePageProps {}
 
@@ -14,6 +15,8 @@ type DataType = {
 	creator: { full_name: string; id: string; profile_pic: string; username: string };
 	id: string;
 	media: { url: string }[];
+	likes: { username: string; profile_pic: string }[];
+	like_id?: string;
 };
 
 const HomePage: FC<HomePageProps> = () => {
@@ -52,7 +55,6 @@ const HomePage: FC<HomePageProps> = () => {
 							loading={loading}
 							title={
 								<Card.Meta
-									style={{}}
 									avatar={<Avatar crossOrigin='anonymous' src={post.creator.profile_pic} />}
 									title={
 										<Link to={`/${post.creator.username}`} style={{ color: 'inherit' }}>
@@ -72,6 +74,8 @@ const HomePage: FC<HomePageProps> = () => {
 							</div>
 							<div style={{ padding: '10px 14px' }}>
 								<Space direction='vertical'>
+									<LikePost {...{ post, refresh: fetchData }} />
+
 									<Space direction='horizontal' size={5}>
 										<Typography.Text strong>{post.creator.username}</Typography.Text>&nbsp;
 										<Typography.Text>{post.caption}</Typography.Text>
