@@ -5,7 +5,11 @@ import axios, { CancelTokenSource } from 'axios';
 import { usePrivateAxios } from 'hooks';
 
 interface LikePostProps {
-	post: { id: string; likes: { username: string; profile_pic: string }[]; like_id?: string };
+	post: {
+		id: string;
+		likes: { username: string; profile_pic: string }[];
+		like_id?: string;
+	};
 	refresh: () => Promise<void>;
 	isUser?: boolean;
 }
@@ -47,8 +51,11 @@ const LikePost: FC<LikePostProps> = ({ post, refresh, isUser }) => {
 
 			{post.likes[0] && (
 				<Typography.Text style={{ maxWidth: 250 }} ellipsis>
-					Liked By&nbsp;
-					{post.likes.map(e => e.username).join(',')}
+					{post.likes.length > 1
+						? `Liked by ${post.likes[0].username} and ${
+								post.likes.length - 1
+						  } other`
+						: `Liked by ${post.likes[0].username}`}
 				</Typography.Text>
 			)}
 		</Space>
