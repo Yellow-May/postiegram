@@ -3,6 +3,7 @@ import { Layout, Typography } from 'antd';
 import { Link } from 'react-router-dom';
 import HeaderMenu from './Menu';
 import SearchBar from './SearchBar';
+import { useDimensions } from 'hooks';
 
 interface HeaderProps {
 	isVisible: boolean;
@@ -10,12 +11,14 @@ interface HeaderProps {
 }
 
 const Header: FC<HeaderProps> = ({ isVisible, openCreatePostModal }) => {
+	const { width } = useDimensions();
+
 	return (
 		<Layout.Header
 			style={{
 				backgroundColor: '#f9f9f9',
 				borderBottom: 'thin solid #bebebe',
-				padding: 0,
+				padding: width < 1024 ? '0 2.5%' : 0,
 			}}>
 			<div
 				style={{
@@ -28,7 +31,12 @@ const Header: FC<HeaderProps> = ({ isVisible, openCreatePostModal }) => {
 				}}>
 				<div
 					className='logo'
-					style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+					style={{
+						flexGrow: 1,
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'space-between',
+					}}>
 					<Typography.Title level={2} italic style={{ margin: 0 }}>
 						<Link to='/' style={{ color: 'inherit' }}>
 							Postiegram

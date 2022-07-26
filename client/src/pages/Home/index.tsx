@@ -1,5 +1,5 @@
 import { Avatar, Card, Carousel, Layout, Space, Image, Typography } from 'antd';
-import { usePrivateAxios } from 'hooks';
+import { useDimensions, usePrivateAxios } from 'hooks';
 import { FC, Fragment, useEffect, useState } from 'react';
 import Sider from './Sider';
 import axios from 'axios';
@@ -12,7 +12,12 @@ interface HomePageProps {}
 type DataType = {
 	caption: string;
 	created_at: string;
-	creator: { full_name: string; id: string; profile_pic: string; username: string };
+	creator: {
+		full_name: string;
+		id: string;
+		profile_pic: string;
+		username: string;
+	};
 	id: string;
 	media: { url: string }[];
 	likes: { username: string; profile_pic: string }[];
@@ -41,10 +46,22 @@ const HomePage: FC<HomePageProps> = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
+	const { width } = useDimensions();
 	return (
 		<Fragment>
-			<Layout.Content style={{ overflow: 'auto', paddingBottom: 32 }}>
-				<Space direction='vertical' size='large' style={{ display: 'flex', minHeight: 1024 }}>
+			<Layout.Content
+				style={{
+					overflow: 'auto',
+					paddingBottom: 32,
+					paddingRight: width < 480 ? '2.5%' : '',
+					paddingLeft: width < 480 ? '2.5%' : '',
+					maxWidth: width < 1024 ? 600 : '',
+					margin: width < 1024 ? 'auto' : '',
+				}}>
+				<Space
+					direction='vertical'
+					size='large'
+					style={{ display: 'flex', minHeight: 1024 }}>
 					<div className='stories'>Stories Coming Soon!</div>
 
 					{data.map(post => (
@@ -55,9 +72,16 @@ const HomePage: FC<HomePageProps> = () => {
 							loading={loading}
 							title={
 								<Card.Meta
-									avatar={<Avatar crossOrigin='anonymous' src={post.creator.profile_pic} />}
+									avatar={
+										<Avatar
+											crossOrigin='anonymous'
+											src={post.creator.profile_pic}
+										/>
+									}
 									title={
-										<Link to={`/${post.creator.username}`} style={{ color: 'inherit' }}>
+										<Link
+											to={`/${post.creator.username}`}
+											style={{ color: 'inherit' }}>
 											{post.creator.username}
 										</Link>
 									}
@@ -67,7 +91,13 @@ const HomePage: FC<HomePageProps> = () => {
 								<Carousel dotPosition='bottom' autoplay>
 									{post.media.map(({ url }, idx) => (
 										<div key={idx} className='custom-carousel-wrapper'>
-											<Image crossOrigin='anonymous' src={url} title={post.caption} height={400} preview={false} />
+											<Image
+												crossOrigin='anonymous'
+												src={url}
+												title={post.caption}
+												height={400}
+												preview={false}
+											/>
 										</div>
 									))}
 								</Carousel>
@@ -77,11 +107,16 @@ const HomePage: FC<HomePageProps> = () => {
 									<LikePost {...{ post, refresh: fetchData }} />
 
 									<Space direction='horizontal' size={5}>
-										<Typography.Text strong>{post.creator.username}</Typography.Text>&nbsp;
+										<Typography.Text strong>
+											{post.creator.username}
+										</Typography.Text>
+										&nbsp;
 										<Typography.Text>{post.caption}</Typography.Text>
 									</Space>
 
-									<Typography.Text type='secondary' style={{ fontSize: '0.8em' }}>
+									<Typography.Text
+										type='secondary'
+										style={{ fontSize: '0.8em' }}>
 										{PostedSince(post.created_at)}
 									</Typography.Text>
 								</Space>
@@ -91,7 +126,7 @@ const HomePage: FC<HomePageProps> = () => {
 				</Space>
 			</Layout.Content>
 
-			<Sider {...{ fetchData }} />
+			{width >= 1024 && <Sider {...{ fetchData }} />}
 		</Fragment>
 	);
 };
