@@ -1,7 +1,11 @@
 import { FC, useEffect, useState } from 'react';
 import { NavigateFunction, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, MenuProps } from 'antd';
-import { HomeOutlined, PlusSquareOutlined, HeartOutlined } from '@ant-design/icons';
+import {
+	HomeOutlined,
+	PlusSquareOutlined,
+	HeartOutlined,
+} from '@ant-design/icons';
 import ProfileLabel from './ProfileLabel';
 import { useSelector } from 'react-redux';
 import { getUser } from 'redux/features/Auth';
@@ -11,7 +15,10 @@ interface HeaderMenuProps {
 	openCreatePostModal: () => void;
 }
 
-const mainItems = (navigate: NavigateFunction, createPost: () => void): MenuProps['items'] => [
+const mainItems = (
+	navigate: NavigateFunction,
+	createPost: () => void
+): MenuProps['items'] => [
 	{
 		key: '/',
 		icon: <HomeOutlined style={{ width: '100%', fontSize: '1.25em' }} />,
@@ -32,7 +39,10 @@ const mainItems = (navigate: NavigateFunction, createPost: () => void): MenuProp
 	},
 ];
 
-const HeaderMenu: FC<HeaderMenuProps> = ({ isVisible, openCreatePostModal }) => {
+const HeaderMenu: FC<HeaderMenuProps> = ({
+	isVisible,
+	openCreatePostModal,
+}) => {
 	const [currentPage, setcurrentPage] = useState('/');
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -46,7 +56,9 @@ const HeaderMenu: FC<HeaderMenuProps> = ({ isVisible, openCreatePostModal }) => 
 	useEffect(() => {
 		const pathname = '/' + location.pathname.split('/')[1];
 		if (!isVisible)
-			pathname === '/' + user?.username || pathname === '/account' ? setcurrentPage('/profile') : setcurrentPage(pathname);
+			pathname === '/' + user?.username || pathname === '/account'
+				? setcurrentPage('/profile')
+				: setcurrentPage(pathname);
 
 		return () => {
 			setcurrentPage('/');
@@ -56,7 +68,7 @@ const HeaderMenu: FC<HeaderMenuProps> = ({ isVisible, openCreatePostModal }) => 
 	return (
 		<Menu
 			mode='horizontal'
-			style={{ background: 'inherit', border: 'inherit', marginRight: -20 }}
+			style={{ background: 'inherit', border: 'inherit' }}
 			selectedKeys={[currentPage]}
 			items={mainItems(navigate, createPost)}
 		/>
