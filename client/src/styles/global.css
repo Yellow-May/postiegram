@@ -23,7 +23,7 @@ main.ant-layout-content::-webkit-scrollbar {
 	justify-content: center;
 	background-color: #f9f9f9;
 	border: thin solid #bebebe;
-	min-width: 100%;
+	width: 100%;
 	height: 60px;
 	text-align: center;
 }
