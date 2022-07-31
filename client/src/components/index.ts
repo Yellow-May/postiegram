@@ -7,6 +7,7 @@ import CreatePostModal from './CreatePostModal';
 import RelationsModal from './RelationsModal';
 import LikePost from './LikePost';
 import PostModal from './PostModal';
+import ScreenTooSmall from './ScreenTooSmall';
 
 export {
 	RequireAuth,
@@ -17,5 +18,6 @@ export {
 	RelationsModal,
 	LikePost,
 	PostModal,
+	ScreenTooSmall,
 	SavedOutlinedIcon,
 };
