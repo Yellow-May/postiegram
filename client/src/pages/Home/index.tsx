@@ -55,14 +55,16 @@ const HomePage: FC<HomePageProps> = () => {
 					paddingBottom: 32,
 					paddingRight: width < 480 ? '2.5%' : '',
 					paddingLeft: width < 480 ? '2.5%' : '',
-					maxWidth: width < 1024 ? 600 : '',
+					maxWidth: width < 1024 ? 610 : '',
 					margin: width < 1024 ? 'auto' : '',
 				}}>
 				<Space
 					direction='vertical'
 					size='large'
 					style={{ display: 'flex', minHeight: 1024 }}>
-					<div className='stories'>Stories Coming Soon!</div>
+					<div className='stories' style={{ width: 610 }}>
+						Stories Coming Soon!
+					</div>
 
 					{data.map(post => (
 						<Card
