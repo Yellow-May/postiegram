@@ -10,19 +10,23 @@ interface LikePostProps {
 		likes: { username: string; profile_pic: string }[];
 		like_id?: string;
 	};
-	refresh: () => Promise<void>;
+	refetchPosts: any;
 	isUser?: boolean;
 }
 
 let source: CancelTokenSource | null;
 
-const LikePost: FC<LikePostProps> = ({ post, refresh, isUser }) => {
+const LikePost: FC<LikePostProps> = ({
+	post,
+	refetchPosts,
+	isUser,
+}: LikePostProps) => {
 	const axiosPrivate = usePrivateAxios();
 
-	const likeRequest = async () => {
-		if (source) source.cancel('Operation canceled due to new request.');
+	const likePost = async () => {
+		if (source) source.cancel();
 		source = axios.CancelToken.source();
-		await axiosPrivate.post(
+		const res = await axiosPrivate.post(
 			'/post/like',
 			{
 				post_id: post.id,
@@ -30,7 +34,7 @@ const LikePost: FC<LikePostProps> = ({ post, refresh, isUser }) => {
 			},
 			{ cancelToken: source.token }
 		);
-		refresh();
+		res.status === 200 && refetchPosts();
 	};
 
 	return (
@@ -45,7 +49,7 @@ const LikePost: FC<LikePostProps> = ({ post, refresh, isUser }) => {
 							<HeartOutlined style={{ color: '#eb2f96', fontSize: 20 }} />
 						)
 					}
-					onClick={likeRequest}
+					onClick={() => likePost()}
 				/>
 			)}
 

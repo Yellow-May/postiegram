@@ -1,13 +1,11 @@
-import { Avatar, Card, Carousel, Layout, Space, Image, Typography } from 'antd';
-import { useDimensions, usePrivateAxios } from 'hooks';
-import { FC, Fragment, useEffect, useState } from 'react';
-import Sider from './Sider';
-import axios from 'axios';
+import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import { PostedSince } from 'utils';
+import { Avatar, Card, Carousel, Layout, Space, Image, Typography } from 'antd';
+import { useQuery } from '@tanstack/react-query';
 import { LikePost } from 'components';
-
-interface HomePageProps {}
+import { useDimensions, usePrivateAxios } from 'hooks';
+import { PostedSince } from 'utils';
+import Sider from './Sider';
 
 type DataType = {
 	caption: string;
@@ -24,29 +22,19 @@ type DataType = {
 	like_id?: string;
 };
 
-const HomePage: FC<HomePageProps> = () => {
-	const [loading, setLoading] = useState(true);
-	const [data, setData] = useState<DataType[]>([]);
+const HomePage = () => {
 	const axiosPrivate = usePrivateAxios();
-	const source = axios.CancelToken.source();
-	const fetchData = async () => {
-		const res = await axiosPrivate.get('/post', { cancelToken: source.token });
-		setData(res.data.posts);
-		setLoading(false);
-	};
-
-	useEffect(() => {
-		fetchData();
-
-		return () => {
-			setData([]);
-			source.cancel();
-			setLoading(true);
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
 	const { width } = useDimensions();
+
+	const {
+		isLoading,
+		data,
+		refetch: refetchPosts,
+	} = useQuery(['posts'], async () => {
+		const res = await axiosPrivate.get('/post');
+		return res.data.posts as DataType[];
+	});
+
 	return (
 		<Fragment>
 			<Layout.Content
@@ -66,12 +54,12 @@ const HomePage: FC<HomePageProps> = () => {
 						Stories Coming Soon!
 					</div>
 
-					{data.map(post => (
+					{data?.map(post => (
 						<Card
 							key={post.id}
 							className='custom-post-card'
 							bordered
-							loading={loading}
+							loading={isLoading}
 							title={
 								<Card.Meta
 									avatar={
@@ -106,7 +94,7 @@ const HomePage: FC<HomePageProps> = () => {
 							</div>
 							<div style={{ padding: '10px 14px' }}>
 								<Space direction='vertical'>
-									<LikePost {...{ post, refresh: fetchData }} />
+									<LikePost {...{ post, refetchPosts }} />
 
 									<Space direction='horizontal' size={5}>
 										<Typography.Text strong>
@@ -128,7 +116,7 @@ const HomePage: FC<HomePageProps> = () => {
 				</Space>
 			</Layout.Content>
 
-			{width >= 1024 && <Sider {...{ fetchData }} />}
+			{width >= 1024 && <Sider {...{ refetchPosts }} />}
 		</Fragment>
 	);
 };

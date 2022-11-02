@@ -1,25 +1,12 @@
-import { FC, useEffect, useState } from 'react';
-import {
-	Avatar,
-	Layout,
-	Space,
-	Image,
-	Typography,
-	List,
-	Divider,
-	Button,
-} from 'antd';
+import { Avatar, Layout, Space, Image, Typography, List, Divider } from 'antd';
 import { useSelector } from 'react-redux';
-import { getUser } from 'redux/features/Auth';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { getUser } from 'redux/features/Auth';
 import { usePrivateAxios } from 'hooks';
-import axios from 'axios';
+import ListItem from './ListItem';
 
-interface SiderProps {
-	fetchData: () => Promise<void>;
-}
-
-type BotUserType = {
+export type BotUserType = {
 	id: string;
 	username: string;
 	profile: {
@@ -31,35 +18,17 @@ type BotUserType = {
 	isFollowing: boolean;
 };
 
-const Sider: FC<SiderProps> = ({ fetchData }) => {
+const Sider = ({ refetchPosts }: { refetchPosts: any }) => {
 	const user = useSelector(getUser);
-	const [botUsers, setbotUsers] = useState<BotUserType[]>([]);
-	const source = axios.CancelToken.source();
-
 	const axiosPrivate = usePrivateAxios();
-	const fetchBots = async () => {
-		const res = await axiosPrivate('/user/bots', { cancelToken: source.token });
-		setbotUsers(res.data.users);
-	};
-	useEffect(() => {
-		fetchBots();
 
-		return () => {
-			source.cancel();
-			setbotUsers([]);
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
-	const handleFollowRequest = async (user_id: string) => {
-		await axiosPrivate.post(
-			'/user/follow',
-			{ user_id },
-			{ cancelToken: source.token }
-		);
-		await fetchBots();
-		await fetchData();
-	};
+	const { data: botsData, refetch: refetchBots } = useQuery(
+		['bot-users'],
+		async () => {
+			const res = await axiosPrivate('/user/bots');
+			return res.data.users as BotUserType[];
+		}
+	);
 
 	return (
 		<Layout.Sider
@@ -107,28 +76,9 @@ const Sider: FC<SiderProps> = ({ fetchData }) => {
 				<List
 					itemLayout='horizontal'
 					size='small'
-					dataSource={botUsers.slice(0, 4)}
+					dataSource={botsData?.slice(0, 4)}
 					renderItem={bot => (
-						<List.Item
-							actions={[
-								<Button
-									type='primary'
-									size='small'
-									onClick={() => handleFollowRequest(bot.id)}>
-									follow
-								</Button>,
-							]}>
-							<List.Item.Meta
-								avatar={
-									<Avatar
-										crossOrigin='anonymous'
-										src={bot.profile.profile_pic.url}
-									/>
-								}
-								title={<Link to={`/${bot.username}`}>{bot.username}</Link>}
-								description={bot.profile.full_name}
-							/>
-						</List.Item>
+						<ListItem {...{ bot, refetchBots, refetchPosts }} />
 					)}
 				/>
 			</div>

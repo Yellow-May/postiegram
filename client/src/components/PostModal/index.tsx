@@ -62,7 +62,8 @@ const PostModal: FC<PostModalProps> = ({ isUser, fetchData, username_url }) => {
 		width: 480,
 		centered: true,
 		footer: !isUser ? null : (
-			<Button {...{ danger: true, onClick: () => confirmModal(post?.id as string) }}>
+			<Button
+				{...{ danger: true, onClick: () => confirmModal(post?.id as string) }}>
 				<DeleteFilled />
 			</Button>
 		),
@@ -76,12 +77,20 @@ const PostModal: FC<PostModalProps> = ({ isUser, fetchData, username_url }) => {
 				<Carousel autoplay dotPosition='bottom'>
 					{post?.media.map(({ id, url }) => (
 						<div key={id} className='custom-carousel-wrapper'>
-							<Image crossOrigin='anonymous' src={url} title={post?.caption} height={320} preview={false} />
+							<Image
+								crossOrigin='anonymous'
+								src={url}
+								title={post?.caption}
+								height={320}
+								preview={false}
+							/>
 						</div>
 					))}
 				</Carousel>
 
-				<div style={{ marginTop: 16 }}>{post && <LikePost {...{ post, refresh: fetchPost, isUser }} />}</div>
+				<div style={{ marginTop: 16 }}>
+					{post && <LikePost {...{ post, refetchPosts: fetchPost, isUser }} />}
+				</div>
 			</div>
 		</Modal>
 	);
