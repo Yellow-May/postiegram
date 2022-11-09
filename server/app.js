@@ -14,7 +14,7 @@ const app = express();
 
 // cors Options
 const corsOptions = {
-	origin: 'http://localhost:3000',
+	origin: ['https://ymay-postiegram.herokuapp.com', 'http://localhost:3000'],
 	credentials: true,
 };
 
