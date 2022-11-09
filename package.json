@@ -8,7 +8,6 @@
 		"dev:server": "nodemon server",
 		"dev:client": "yarn --cwd client start",
 		"dev": "concurrently \"yarn dev:server\" \"yarn dev:client\"",
-		"build": "yarn install --cwd client && yarn --cwd client build && npm prune",
 		"heroku-postbuild": "YARN_CONFIG_PRODUCTION=false yarn install --cwd client && yarn --cwd client build",
 		"generate:bots": "node populate/bots"
 	},
