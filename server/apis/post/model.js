@@ -15,7 +15,7 @@ const MediaSchema = new mongoose.Schema({
 	},
 });
 
-const LikesSchema = new mongoose.Schema(
+const UserInteractionSchema = new mongoose.Schema(
 	{
 		user_id: {
 			type: mongoose.SchemaTypes.ObjectId,
@@ -42,7 +42,10 @@ const PostSchema = new mongoose.Schema(
 			required: [true, 'Please provide 1 or more media'],
 		},
 		likes: {
-			type: [LikesSchema],
+			type: [UserInteractionSchema],
+		},
+		bookmarks: {
+			type: [UserInteractionSchema],
 		},
 	},
 	{ timestamps: true }

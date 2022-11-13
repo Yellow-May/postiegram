@@ -102,7 +102,7 @@ const HomePage = () => {
 										}}>
 										<LikePost {...{ post, refetchPosts }} />
 
-										<BookmarkPost />
+										<BookmarkPost {...{ post }} />
 									</div>
 
 									<Space direction='horizontal' size={5}>

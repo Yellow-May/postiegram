@@ -1,18 +1,46 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from 'antd';
+import axios, { CancelTokenSource } from 'axios';
 import { BookmarkFilledIcon, BookmarkOutlinedIcon } from 'components/Icons';
-import { useState } from 'react';
+import { usePrivateAxios } from 'hooks';
 
-const BookmarkPost = () => {
-	const [saved, setSaved] = useState(false);
-
-	const bookmarkReq = () => {
-		setSaved(prev => !prev);
+interface BookmarkPostInterface {
+	post: {
+		id: string;
+		bookmark_id?: string;
 	};
+	isUser?: boolean;
+}
+
+let source: CancelTokenSource | null;
+
+const BookmarkPost = ({ post }: BookmarkPostInterface) => {
+	const axiosPrivate = usePrivateAxios();
+	const queryClient = useQueryClient();
+
+	const mutation = useMutation({
+		mutationFn: async () => {
+			if (source) source.cancel();
+			source = axios.CancelToken.source();
+			return axiosPrivate.patch(
+				`/post/${post.id}/bookmark`,
+				{
+					bookmark_id: post?.bookmark_id,
+				},
+				{ cancelToken: source.token }
+			);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries(['posts']);
+		},
+	});
 
 	return (
 		<Button
-			icon={saved ? <BookmarkFilledIcon /> : <BookmarkOutlinedIcon />}
-			onClick={bookmarkReq}
+			icon={
+				post.bookmark_id ? <BookmarkFilledIcon /> : <BookmarkOutlinedIcon />
+			}
+			onClick={() => mutation.mutate()}
 		/>
 	);
 };
