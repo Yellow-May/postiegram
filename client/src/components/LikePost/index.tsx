@@ -38,7 +38,7 @@ const LikePost: FC<LikePostProps> = ({
 	};
 
 	return (
-		<Space direction='horizontal' size={5}>
+		<Space direction='horizontal' size={5} style={{ flexGrow: 1 }}>
 			{!isUser && (
 				<Button
 					type='link'
