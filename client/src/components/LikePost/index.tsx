@@ -26,10 +26,9 @@ const LikePost: FC<LikePostProps> = ({
 	const likePost = async () => {
 		if (source) source.cancel();
 		source = axios.CancelToken.source();
-		const res = await axiosPrivate.post(
-			'/post/like',
+		const res = await axiosPrivate.patch(
+			`/post/${post.id}/like`,
 			{
-				post_id: post.id,
 				like_id: post.like_id || null,
 			},
 			{ cancelToken: source.token }
@@ -38,7 +37,7 @@ const LikePost: FC<LikePostProps> = ({
 	};
 
 	return (
-		<Space direction='horizontal' size={5}>
+		<Space direction='horizontal' size={5} style={{ flexGrow: 1 }}>
 			{!isUser && (
 				<Button
 					type='link'

@@ -1,6 +1,10 @@
-import { UserOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons';
+import {
+	UserOutlined,
+	SettingOutlined,
+	LogoutOutlined,
+} from '@ant-design/icons';
 import { Dropdown, Menu, Divider, Modal, Avatar, Image } from 'antd';
-import { SavedOutlinedIcon } from 'components';
+import { BookmarkOutlinedIcon } from 'components/Icons';
 import { FC } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -24,19 +28,31 @@ const ProfileLabel: FC = () => {
 					items={[
 						{
 							key: `/${user?.username}`,
-							icon: <UserOutlined style={{ fontSize: '1.125em', marginRight: 10 }} />,
+							icon: (
+								<UserOutlined
+									style={{ fontSize: '1.125em', marginRight: 10 }}
+								/>
+							),
 							label: 'Profile',
 							onClick: ({ key }) => navigate(key),
 						},
 						{
 							key: `/${user?.username}/saved`,
-							icon: <SavedOutlinedIcon style={{ fontSize: '1.125em', marginRight: 10 }} />,
+							icon: (
+								<BookmarkOutlinedIcon
+									style={{ fontSize: '1.125em', marginRight: 10 }}
+								/>
+							),
 							label: 'Saved',
 							onClick: ({ key }) => navigate(key),
 						},
 						{
 							key: `/account/edits`,
-							icon: <SettingOutlined style={{ fontSize: '1.125em', marginRight: 10 }} />,
+							icon: (
+								<SettingOutlined
+									style={{ fontSize: '1.125em', marginRight: 10 }}
+								/>
+							),
 							label: 'Settings',
 							onClick: ({ key }) => navigate(key),
 						},
@@ -48,7 +64,15 @@ const ProfileLabel: FC = () => {
 						},
 						{
 							key: 'logout',
-							icon: <LogoutOutlined style={{ fontSize: '1.125em', marginRight: 10, color: '#fa3131' }} />,
+							icon: (
+								<LogoutOutlined
+									style={{
+										fontSize: '1.125em',
+										marginRight: 10,
+										color: '#fa3131',
+									}}
+								/>
+							),
 							label: 'Logout',
 							onClick: () =>
 								Modal.confirm({
@@ -65,7 +89,14 @@ const ProfileLabel: FC = () => {
 				/>
 			}>
 			<Avatar
-				src={<Image crossOrigin='anonymous' src={user?.profile.profile_pic.url} alt={user?.username} preview={false} />}
+				src={
+					<Image
+						crossOrigin='anonymous'
+						src={user?.profile.profile_pic.url}
+						alt={user?.username}
+						preview={false}
+					/>
+				}
 			/>
 		</Dropdown>
 	);

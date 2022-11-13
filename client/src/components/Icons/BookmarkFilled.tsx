@@ -2,7 +2,7 @@ import { RefAttributes } from 'react';
 import Icon from '@ant-design/icons';
 import { IconComponentProps } from '@ant-design/icons/lib/components/Icon';
 
-const SavedOutlinedIcon = (
+const BookmarkFilled = (
 	props: JSX.IntrinsicAttributes &
 		Pick<
 			IconComponentProps,
@@ -378,12 +378,17 @@ const SavedOutlinedIcon = (
 		<Icon
 			{...props}
 			component={() => (
-				<svg fill='#000000' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='1em' height='1em'>
-					<path d='M 6.0097656 2 C 4.9143111 2 4.0097656 2.9025988 4.0097656 3.9980469 L 4 22 L 12 19 L 20 22 L 20 20.556641 L 20 4 C 20 2.9069372 19.093063 2 18 2 L 6.0097656 2 z M 6.0097656 4 L 18 4 L 18 19.113281 L 12 16.863281 L 6.0019531 19.113281 L 6.0097656 4 z' />
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					viewBox='0 0 384 512'
+					width='1em'
+					height='1em'>
+					{/* ! Font Awesome Pro 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. */}
+					<path d='M0 48V487.7C0 501.1 10.9 512 24.3 512c5 0 9.9-1.5 14-4.4L192 400 345.7 507.6c4.1 2.9 9 4.4 14 4.4c13.4 0 24.3-10.9 24.3-24.3V48c0-26.5-21.5-48-48-48H48C21.5 0 0 21.5 0 48z' />
 				</svg>
 			)}
 		/>
 	);
 };
 
-export default SavedOutlinedIcon;
+export default BookmarkFilled;

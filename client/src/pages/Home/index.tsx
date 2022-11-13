@@ -2,7 +2,7 @@ import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { Avatar, Card, Carousel, Layout, Space, Image, Typography } from 'antd';
 import { useQuery } from '@tanstack/react-query';
-import { LikePost } from 'components';
+import { BookmarkPost, LikePost } from 'components';
 import { useDimensions, usePrivateAxios } from 'hooks';
 import { PostedSince } from 'utils';
 import Sider from './Sider';
@@ -93,8 +93,17 @@ const HomePage = () => {
 								</Carousel>
 							</div>
 							<div style={{ padding: '10px 14px' }}>
-								<Space direction='vertical'>
-									<LikePost {...{ post, refetchPosts }} />
+								<Space direction='vertical' style={{ width: '100%' }}>
+									<div
+										style={{
+											width: '100%',
+											display: 'flex',
+											alignItems: 'center',
+										}}>
+										<LikePost {...{ post, refetchPosts }} />
+
+										<BookmarkPost {...{ post }} />
+									</div>
 
 									<Space direction='horizontal' size={5}>
 										<Typography.Text strong>

@@ -1,6 +1,6 @@
 import { TableOutlined, TagOutlined } from '@ant-design/icons';
 import { Divider, Menu, Typography } from 'antd';
-import { SavedOutlinedIcon } from 'components';
+import { BookmarkOutlinedIcon } from 'components/Icons';
 import { FC } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, Outlet, useLocation } from 'react-router-dom';
@@ -12,7 +12,12 @@ const auth_user_menu = (user: UserType) => [
 	{
 		key: `/${user.username}`,
 		label: (
-			<Typography.Text style={{ fontSize: '0.85em', letterSpacing: 1, margin: '-1px 15px 0 15px' }}>
+			<Typography.Text
+				style={{
+					fontSize: '0.85em',
+					letterSpacing: 1,
+					margin: '-1px 15px 0 15px',
+				}}>
 				<TableOutlined />
 				<Link to={`/${user.username}`} style={{ marginLeft: 8 }}>
 					POSTS
@@ -23,8 +28,13 @@ const auth_user_menu = (user: UserType) => [
 	{
 		key: `/${user.username}/saved`,
 		label: (
-			<Typography.Text style={{ fontSize: '0.85em', letterSpacing: 1, margin: '-1px 15px 0 15px' }}>
-				<SavedOutlinedIcon />
+			<Typography.Text
+				style={{
+					fontSize: '0.85em',
+					letterSpacing: 1,
+					margin: '-1px 15px 0 15px',
+				}}>
+				<BookmarkOutlinedIcon />
 				<Link to={`/${user.username}/saved`} style={{ marginLeft: 8 }}>
 					SAVED
 				</Link>
@@ -34,7 +44,12 @@ const auth_user_menu = (user: UserType) => [
 	{
 		key: `/${user.username}/tagged`,
 		label: (
-			<Typography.Text style={{ fontSize: '0.85em', letterSpacing: 1, margin: '-1px 15px 0 15px' }}>
+			<Typography.Text
+				style={{
+					fontSize: '0.85em',
+					letterSpacing: 1,
+					margin: '-1px 15px 0 15px',
+				}}>
 				<TagOutlined />
 				<Link to={`/${user.username}/tagged`} style={{ marginLeft: 8 }}>
 					TAGGED
@@ -49,7 +64,12 @@ const other_user_menu = (username_url: string) => [
 	{
 		key: `/${username_url}`,
 		label: (
-			<Typography.Text style={{ fontSize: '0.85em', letterSpacing: 1, margin: '-1px 15px 0 15px' }}>
+			<Typography.Text
+				style={{
+					fontSize: '0.85em',
+					letterSpacing: 1,
+					margin: '-1px 15px 0 15px',
+				}}>
 				<TableOutlined />
 				<Typography.Text style={{ marginLeft: 8 }}>POSTS</Typography.Text>
 			</Typography.Text>
@@ -75,7 +95,9 @@ const ProfilePage: FC<ProfilePageProps> = () => {
 				mode='horizontal'
 				defaultSelectedKeys={[location.pathname]}
 				className='custom-menu-nav'
-				items={user && isUser ? auth_user_menu(user) : other_user_menu(username_url)}
+				items={
+					user && isUser ? auth_user_menu(user) : other_user_menu(username_url)
+				}
 				style={{
 					justifyContent: 'center',
 					background: 'none',
