@@ -18,17 +18,14 @@ export type BotUserType = {
 	isFollowing: boolean;
 };
 
-const Sider = ({ refetchPosts }: { refetchPosts: any }) => {
+const Sider = () => {
 	const user = useSelector(getUser);
 	const axiosPrivate = usePrivateAxios();
 
-	const { data: botsData, refetch: refetchBots } = useQuery(
-		['bot-users'],
-		async () => {
-			const res = await axiosPrivate('/user/bots');
-			return res.data.users as BotUserType[];
-		}
-	);
+	const { data: botsData } = useQuery(['bot-users'], async () => {
+		const res = await axiosPrivate('/user/bots');
+		return res.data.users as BotUserType[];
+	});
 
 	return (
 		<Layout.Sider
@@ -77,9 +74,7 @@ const Sider = ({ refetchPosts }: { refetchPosts: any }) => {
 					itemLayout='horizontal'
 					size='small'
 					dataSource={botsData?.slice(0, 4)}
-					renderItem={bot => (
-						<ListItem {...{ bot, refetchBots, refetchPosts }} />
-					)}
+					renderItem={bot => <ListItem {...{ bot }} />}
 				/>
 			</div>
 			<Layout.Footer

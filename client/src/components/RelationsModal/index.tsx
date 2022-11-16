@@ -1,24 +1,16 @@
-import { FC, Fragment, useEffect, useState } from 'react';
+import { FC, Fragment, useRef } from 'react';
 import { Avatar, Badge, Button, List, Modal, Skeleton } from 'antd';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { usePrivateAxios } from 'hooks';
 import axios from 'axios';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface RelationsModalProps {
 	isUser: boolean;
 	title: string;
 	visible: boolean;
 	closeModal: () => void;
-	followRequest: ({
-		url,
-		data,
-	}: {
-		url: string;
-		data: {
-			_id?: string;
-			user_id: string;
-		};
-	}) => Promise<void>;
+	username_url: string;
 }
 
 type RelationsInfo = {
@@ -32,57 +24,69 @@ type RelationsInfo = {
 	isFollower?: boolean;
 };
 
-const RelationsModal: FC<RelationsModalProps> = ({ isUser, title, visible, closeModal, followRequest }) => {
+const RelationsModal: FC<RelationsModalProps> = ({
+	isUser,
+	title,
+	visible,
+	closeModal,
+	username_url,
+}) => {
 	/**
 	 * state management
 	 * initLoading for the inital loading on mount
 	 * data for the response data
 	 * axiosPrivate for private requests, source to handle request CancelToken to stop request in certain situations like unmount
 	 */
-	const [initLoading, setInitLoading] = useState(true);
-	const [data, setData] = useState<RelationsInfo[]>([]);
+	const changeRef = useRef(false);
 	const axiosPrivate = usePrivateAxios();
 	const source = axios.CancelToken.source();
 	const navigate = useNavigate();
-	const location = useLocation();
-	const username_url = location.pathname.split('/')[1];
+	const queryClient = useQueryClient();
 
-	// fetch request for followers or following
-	const fetchData = async () => {
-		const res = await axiosPrivate(`/user/${username_url}/${title.toLowerCase()}`, {
-			cancelToken: source.token,
-		});
-		const data = res.data?.followers || res.data?.following;
-		setData(data);
-	};
+	const { isLoading, data } = useQuery(
+		['relationship', username_url, title],
+		async () => {
+			const res = await axiosPrivate(`/user/${username_url}/${title}`, {
+				cancelToken: source.token,
+			});
+			return (res.data?.followers || res.data?.following) as RelationsInfo[];
+		}
+	);
 
-	// on mount
-	useEffect(() => {
-		fetchData();
-		setInitLoading(false);
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
-	// followloading state to handle the change in the 'Follow', 'Unfollow' or 'Follow Back" button when the request is called
-	const [followLoading, setfollowLoading] = useState(false);
+	const mutation = useMutation({
+		mutationFn: async ({
+			url,
+			data,
+		}: {
+			url: string;
+			data: { _id?: string; user_id: string };
+		}) => {
+			return await axiosPrivate.patch(url, data);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries(['relationship', username_url, title]);
+			changeRef.current = true;
+		},
+	});
 	const handleFollowRequest = async (user: RelationsInfo) => {
-		setfollowLoading(true);
 		const user_id = user.user_id;
 		const _id = user.isFollowing?._id || user.id;
-		const url = user.isFollowing || title === 'Following' ? '/user/unfollow' : '/user/follow';
+		const url =
+			user.isFollowing || title === 'following'
+				? '/user/unfollow'
+				: '/user/follow';
 		const data = _id ? { _id, user_id } : { user_id };
-		await followRequest({ url, data });
-		await fetchData();
-		setfollowLoading(false);
+		mutation.mutate({ url, data });
 	};
 
 	// action button logic, either 'Follow', 'Unfollow' or 'Follow Back'
 	const action = (item: RelationsInfo) => {
 		if (isUser) {
 			return (
-				<Button loading={followLoading} onClick={() => handleFollowRequest(item)}>
-					{title === 'Followers' && !item.isFollowing ? 'Follow Back' : 'Unfollow'}
+				<Button onClick={() => handleFollowRequest(item)}>
+					{title === 'Followers' && !item.isFollowing
+						? 'Follow Back'
+						: 'Unfollow'}
 				</Button>
 			);
 		}
@@ -101,9 +105,9 @@ const RelationsModal: FC<RelationsModalProps> = ({ isUser, title, visible, close
 	// handles onClose of the modal
 	const onCancel = () => {
 		source.cancel();
-		setData([]);
-		setInitLoading(true);
 		closeModal();
+		if (changeRef.current === true)
+			queryClient.invalidateQueries(['user', username_url]);
 	};
 
 	// modal props
@@ -121,24 +125,40 @@ const RelationsModal: FC<RelationsModalProps> = ({ isUser, title, visible, close
 		<Modal forceRender {...modalProps}>
 			<List
 				style={{ maxHeight: 360, overflow: 'auto' }}
-				loading={initLoading}
+				loading={isLoading}
 				itemLayout='horizontal'
 				dataSource={data}
 				renderItem={item => (
 					<List.Item actions={[action(item)]}>
 						<Skeleton avatar title={false} loading={item.loading} active>
 							<List.Item.Meta
-								avatar={<Avatar crossOrigin='anonymous' src={item.profile_pic} />}
+								avatar={
+									<Avatar crossOrigin='anonymous' src={item.profile_pic} />
+								}
 								title={
 									<Fragment>
 										<Link to={`/${item.username}`} onClick={onCancel}>
 											{item.username}
 										</Link>
 										{title === 'Following' && item.isFollower && (
-											<Badge count={'follows you'} style={{ top: -10, background: '#708ffd', fontSize: '0.6em' }} />
+											<Badge
+												count={'follows you'}
+												style={{
+													top: -10,
+													background: '#708ffd',
+													fontSize: '0.6em',
+												}}
+											/>
 										)}
 										{title === 'Followers' && item.isFollowing && (
-											<Badge count={'following'} style={{ top: -10, background: '#708ffd', fontSize: '0.6em' }} />
+											<Badge
+												count={'following'}
+												style={{
+													top: -10,
+													background: '#708ffd',
+													fontSize: '0.6em',
+												}}
+											/>
 										)}
 									</Fragment>
 								}

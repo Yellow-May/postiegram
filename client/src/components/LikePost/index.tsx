@@ -3,6 +3,7 @@ import { FC } from 'react';
 import { Space, Button, Typography } from 'antd';
 import axios, { CancelTokenSource } from 'axios';
 import { usePrivateAxios } from 'hooks';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface LikePostProps {
 	post: {
@@ -10,31 +11,31 @@ interface LikePostProps {
 		likes: { username: string; profile_pic: string }[];
 		like_id?: string;
 	};
-	refetchPosts: any;
 	isUser?: boolean;
 }
 
 let source: CancelTokenSource | null;
 
-const LikePost: FC<LikePostProps> = ({
-	post,
-	refetchPosts,
-	isUser,
-}: LikePostProps) => {
+const LikePost: FC<LikePostProps> = ({ post, isUser }: LikePostProps) => {
 	const axiosPrivate = usePrivateAxios();
+	const queryClient = useQueryClient();
 
-	const likePost = async () => {
-		if (source) source.cancel();
-		source = axios.CancelToken.source();
-		const res = await axiosPrivate.patch(
-			`/post/${post.id}/like`,
-			{
-				like_id: post.like_id || null,
-			},
-			{ cancelToken: source.token }
-		);
-		res.status === 200 && refetchPosts();
-	};
+	const mutation = useMutation({
+		mutationFn: async () => {
+			if (source) source.cancel();
+			source = axios.CancelToken.source();
+			return await axiosPrivate.patch(
+				`/post/${post.id}/like`,
+				{
+					like_id: post.like_id || null,
+				},
+				{ cancelToken: source.token }
+			);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries(['posts']);
+		},
+	});
 
 	return (
 		<Space direction='horizontal' size={5} style={{ flexGrow: 1 }}>
@@ -48,7 +49,7 @@ const LikePost: FC<LikePostProps> = ({
 							<HeartOutlined style={{ color: '#eb2f96', fontSize: 20 }} />
 						)
 					}
-					onClick={() => likePost()}
+					onClick={() => mutation.mutate()}
 				/>
 			)}
 

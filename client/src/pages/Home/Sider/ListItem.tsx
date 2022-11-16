@@ -1,38 +1,27 @@
-import { useState } from 'react';
 import { BotUserType } from '.';
 import { usePrivateAxios } from 'hooks';
 import { List, Button, Avatar } from 'antd';
 import { Link } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-const ListItem = ({
-	bot,
-	refetchPosts,
-	refetchBots,
-}: {
-	bot: BotUserType;
-	refetchPosts: any;
-	refetchBots: any;
-}) => {
-	const [isLoading, setIsLoading] = useState(false);
+const ListItem = ({ bot }: { bot: BotUserType }) => {
 	const axiosPrivate = usePrivateAxios();
+	const queryClient = useQueryClient();
 
-	const followUser = async (user_id: string) => {
-		setIsLoading(true);
-		await axiosPrivate.post('/user/follow', { user_id });
-		setIsLoading(false);
-		refetchPosts();
-		refetchBots();
-	};
+	const mutation = useMutation({
+		mutationFn: async () => {
+			return await axiosPrivate.patch('/user/follow', { user_id: bot.id });
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries(['posts']);
+			queryClient.invalidateQueries(['bot-users']);
+		},
+	});
 
 	return (
 		<List.Item
 			actions={[
-				<Button
-					type='primary'
-					size='small'
-					onClick={() => followUser(bot.id)}
-					disabled={isLoading}
-					loading={isLoading}>
+				<Button type='primary' size='small' onClick={() => mutation.mutate()}>
 					follow
 				</Button>,
 			]}>
