@@ -96,7 +96,7 @@ const HomePage = () => {
 											display: 'flex',
 											alignItems: 'center',
 										}}>
-										<LikePost {...{ post }} />
+										<LikePost {...{ post, queryKey: ['posts'] }} />
 
 										<BookmarkPost {...{ post }} />
 									</div>

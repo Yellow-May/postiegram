@@ -132,6 +132,82 @@ module.exports.GET_FOLLOWING_POSTS = async (req, res) => {
 	res.status(StatusCodes.OK).json({ posts, nBits: posts.length });
 };
 
+module.exports.GET_BOOKMARKED_POSTS = async (req, res) => {
+	const { _id: id, username: req_username } = req.user;
+
+	const raw_posts = await PostModel.find({
+		bookmarks: { $elemMatch: { user_id: id } },
+	})
+		.select('_id caption media likes createdAt')
+		.sort({ createdAt: 'desc' })
+		.exec();
+
+	const posts = await Promise.all(
+		raw_posts.map(async post => {
+			let like_id;
+			const postLikes = await Promise.all(
+				post.likes.map(async postLike => {
+					const { username, profile } = await UserModel.findById(
+						postLike.user_id
+					)
+						.select('username profile.profile_pic.url')
+						.exec();
+					if (username === req_username) like_id = postLike._id;
+					return { username, profile_pic: profile.profile_pic.url };
+				})
+			);
+
+			return {
+				id: post._id,
+				caption: post.caption,
+				media: post.media.map(e => ({ id: e._id, url: e.url })),
+				created_at: post.createdAt,
+				likes: postLikes.filter(e => e.username !== req_username),
+				like_id,
+			};
+		})
+	);
+
+	res.status(StatusCodes.OK).json({ posts, nBits: posts.length });
+};
+
+module.exports.GET_BOOKMARKED_POST = async (req, res) => {
+	const { username: req_username } = req.user;
+	const { post_id } = req.params;
+
+	const { _id, caption, media, likes, createdAt } = await PostModel.findById(
+		post_id
+	)
+		.select('_id caption media likes createdAt')
+		.sort({ createdAt: 'desc' })
+		.exec();
+
+	let like_id;
+	const postLikes = await Promise.all(
+		likes.map(async postLike => {
+			const { username, profile } = await UserModel.findById(postLike.user_id)
+				.select('username profile.profile_pic.url')
+				.exec();
+			if (username === req_username) like_id = postLike._id;
+			return {
+				username,
+				profile_pic: profile.profile_pic.url,
+			};
+		})
+	);
+
+	const post = {
+		id: _id,
+		caption,
+		media: media.map(e => ({ id: e._id, url: e.url })),
+		createdAt,
+		likes: postLikes,
+		like_id,
+	};
+
+	res.status(StatusCodes.OK).json({ post });
+};
+
 module.exports.CREATE_POST = async (req, res) => {
 	const { _id: id } = req.user;
 	const { caption, media } = req.body;

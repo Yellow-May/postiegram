@@ -9,11 +9,17 @@ const {
 	TOGGLE_LIKE,
 	GET_SINGLE_POST,
 	TOGGLE_BOOKMARK,
+	GET_BOOKMARKED_POSTS,
+	GET_BOOKMARKED_POST,
 } = require('./controllers');
 
 postRouter.use(authMiddleware);
 
 postRouter.route('/').get(GET_FOLLOWING_POSTS).post(CREATE_POST);
+
+postRouter.get('/bookmarked', GET_BOOKMARKED_POSTS);
+
+postRouter.get('/bookmarked/:post_id', GET_BOOKMARKED_POST);
 
 postRouter.get('/:username', GET_USER_POSTS);
 

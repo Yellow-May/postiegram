@@ -3,7 +3,14 @@ import { FC } from 'react';
 import { Space, Button, Typography } from 'antd';
 import axios, { CancelTokenSource } from 'axios';
 import { usePrivateAxios } from 'hooks';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+	QueryObserverResult,
+	RefetchOptions,
+	RefetchQueryFilters,
+	useMutation,
+	useQueryClient,
+} from '@tanstack/react-query';
+import { DataType } from 'pages/ProfilePosts';
 
 interface LikePostProps {
 	post: {
@@ -12,11 +19,20 @@ interface LikePostProps {
 		like_id?: string;
 	};
 	isUser?: boolean;
+	queryKey?: string[];
+	refetch?: <TPageData>(
+		options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined
+	) => Promise<QueryObserverResult<DataType, unknown>>;
 }
 
 let source: CancelTokenSource | null;
 
-const LikePost: FC<LikePostProps> = ({ post, isUser }: LikePostProps) => {
+const LikePost: FC<LikePostProps> = ({
+	post,
+	isUser,
+	queryKey,
+	refetch,
+}: LikePostProps) => {
 	const axiosPrivate = usePrivateAxios();
 	const queryClient = useQueryClient();
 
@@ -24,7 +40,7 @@ const LikePost: FC<LikePostProps> = ({ post, isUser }: LikePostProps) => {
 		mutationFn: async () => {
 			if (source) source.cancel();
 			source = axios.CancelToken.source();
-			return await axiosPrivate.patch(
+			await axiosPrivate.patch(
 				`/post/${post.id}/like`,
 				{
 					like_id: post.like_id || null,
@@ -33,7 +49,8 @@ const LikePost: FC<LikePostProps> = ({ post, isUser }: LikePostProps) => {
 			);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries(['posts']);
+			queryKey && queryClient.invalidateQueries(queryKey);
+			refetch?.();
 		},
 	});
 

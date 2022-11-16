@@ -1,8 +1,7 @@
 import PageLayout from './Layout';
 import HomePage from './Home';
 import ProfilePage from './Profile';
-import MyPosts from './MyPosts';
-import SavedPosts from './SavedPosts';
+import ProfilePostsPage from './ProfilePosts';
 import AccountManagementPage from './AccountManagement';
 import LoginPage from './Login';
 import RegisterPage from './Register';
@@ -14,8 +13,7 @@ export {
 	PageLayout,
 	HomePage,
 	ProfilePage,
-	MyPosts,
-	SavedPosts,
+	ProfilePostsPage,
 	AccountManagementPage,
 	LoginPage,
 	RegisterPage,

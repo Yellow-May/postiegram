@@ -1,15 +1,14 @@
-import { FC, Fragment, useEffect, useState } from 'react';
+import { FC, Fragment } from 'react';
 import axios from 'axios';
 import { usePrivateAxios } from 'hooks';
 import { useSelector } from 'react-redux';
-import { getIsPostCreated, togglePostCreated } from 'redux/features/Others';
-import { useAppDispatch } from 'redux/store';
 import { Col, Row, Image } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getUser } from 'redux/features/Auth';
 import { PostModal } from 'components';
+import { useQuery } from '@tanstack/react-query';
 
-interface MyPostsProps {}
+interface ProfilePostsProps {}
 
 type MediaType = {
 	id: string;
@@ -25,35 +24,20 @@ export type DataType = {
 	like_id?: string;
 };
 
-const MyPosts: FC<MyPostsProps> = () => {
-	const [data, setData] = useState<DataType[]>([]);
+const ProfilePosts: FC<ProfilePostsProps> = () => {
 	const location = useLocation();
 	const axiosPrivate = usePrivateAxios();
 	const source = axios.CancelToken.source();
 	const username_url = location.pathname.split('/')[1];
-	const fetchData = async () => {
-		const res = await axiosPrivate.get(`/post/${username_url}`, { cancelToken: source.token });
-		setData(res.data.posts);
-	};
-	useEffect(() => {
-		fetchData();
+	const saved = location.pathname.split('/')[2] === 'saved';
 
-		return function cleanup() {
-			source.cancel();
-			setData([]);
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [location]);
-
-	const isPostCreated = useSelector(getIsPostCreated);
-	const dispatch = useAppDispatch();
-	useEffect(() => {
-		if (isPostCreated) {
-			fetchData();
-			dispatch(togglePostCreated(false));
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isPostCreated]);
+	const { data } = useQuery(['my-posts', { username_url, saved }], async () => {
+		const url = saved ? `/post/bookmarked` : `/post/${username_url}`;
+		const res = await axiosPrivate.get(url, {
+			cancelToken: source.token,
+		});
+		return res.data.posts as DataType[];
+	});
 
 	const user = useSelector(getUser);
 	const isUser = location.pathname.includes(user?.username as string);
@@ -61,14 +45,20 @@ const MyPosts: FC<MyPostsProps> = () => {
 
 	return (
 		<Fragment>
-			<Row gutter={28}>
-				{data.map(post => {
+			<Row gutter={24} style={{ margin: 0 }}>
+				{data?.map(post => {
 					const { caption, id, media } = post;
 					const { url } = media[0];
 
 					return (
 						<Col key={id} {...{ xs: 8, sm: 8, md: 8, lg: 8 }}>
-							<div className='custom-img-wrapper' style={{ height: 320 }}>
+							<div
+								className='custom-img-wrapper'
+								style={{
+									height: 300,
+									border: 'thin solid',
+									overflow: 'hidden',
+								}}>
 								<Image
 									crossOrigin='anonymous'
 									src={url}
@@ -76,7 +66,7 @@ const MyPosts: FC<MyPostsProps> = () => {
 									title={caption}
 									width='100%'
 									preview={false}
-									style={{ cursor: 'pointer' }}
+									style={{ cursor: 'pointer', maxHeight: '100%' }}
 									onClick={() => navigate(`?post_id=${id}&&post_modal=1`)}
 								/>
 							</div>
@@ -85,9 +75,9 @@ const MyPosts: FC<MyPostsProps> = () => {
 				})}
 			</Row>
 
-			<PostModal {...{ isUser, fetchData, username_url }} />
+			<PostModal {...{ isUser, username_url, saved }} />
 		</Fragment>
 	);
 };
 
-export default MyPosts;
+export default ProfilePosts;
