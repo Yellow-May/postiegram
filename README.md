@@ -16,6 +16,18 @@ Users should be able to:
 
 - Login
 - Register
+- Create a Post
+- Delete a Post
+- Search for other users
+- View other users' profile page
+- View other users' posts, followers and following in their profile page
+- Follow other users
+- View following users' posts in the home page
+- Like other users' posts
+- Bookmark other users' posts
+- View your profile page
+- View followers, following and posts in profile page
+- View bookmarked posts in your profile page
 
 ## My process
 
@@ -28,6 +40,7 @@ Users should be able to:
 - [Redux Toolkit](https://www.redux-toolkit.js.org)
 - [Typescript](https://www.typescriptlang.org/)
 - [Ant Design](https://ant.design/)
+- [React Query](https://tanstack.com/query/v4/)
 
 ## Author
 
