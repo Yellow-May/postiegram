@@ -1,6 +1,6 @@
 import useRefreshToken from './useRefreshToken';
 import usePrivateAxios from './usePrivateAxios';
-import useQuery from './useQuery';
+import useURLQuery from './useURLQuery';
 import useDimensions from './useDimensions';
 
-export { useRefreshToken, usePrivateAxios, useQuery, useDimensions };
+export { useRefreshToken, usePrivateAxios, useURLQuery, useDimensions };

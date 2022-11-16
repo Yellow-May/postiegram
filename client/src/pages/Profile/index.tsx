@@ -1,6 +1,9 @@
 import { TableOutlined, TagOutlined } from '@ant-design/icons';
+import { useQuery } from '@tanstack/react-query';
 import { Divider, Menu, Typography } from 'antd';
+import axios from 'axios';
 import { BookmarkOutlinedIcon } from 'components/Icons';
+import { usePrivateAxios } from 'hooks';
 import { FC } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, Outlet, useLocation } from 'react-router-dom';
@@ -85,9 +88,20 @@ const ProfilePage: FC<ProfilePageProps> = () => {
 	const isUser = location.pathname.includes(user?.username as string);
 	const username_url = location.pathname.split('/')[1];
 
+	// private axios to handle authorized requests without fails
+	const axiosPrivate = usePrivateAxios();
+	const source = axios.CancelToken.source();
+
+	const { data: userInfo } = useQuery(['user', username_url], async () => {
+		const res = await axiosPrivate.get(`/user/${username_url}`, {
+			cancelToken: source.token,
+		});
+		return res.data?.user;
+	});
+
 	return (
 		<div>
-			<InfoSection {...{ isUser }} />
+			<InfoSection {...{ isUser, userInfo }} />
 
 			<Divider style={{ marginBottom: 0 }} />
 

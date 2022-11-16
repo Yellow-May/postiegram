@@ -26,11 +26,7 @@ const HomePage = () => {
 	const axiosPrivate = usePrivateAxios();
 	const { width } = useDimensions();
 
-	const {
-		isLoading,
-		data,
-		refetch: refetchPosts,
-	} = useQuery(['posts'], async () => {
+	const { isLoading, data } = useQuery(['posts'], async () => {
 		const res = await axiosPrivate.get('/post');
 		return res.data.posts as DataType[];
 	});
@@ -100,7 +96,7 @@ const HomePage = () => {
 											display: 'flex',
 											alignItems: 'center',
 										}}>
-										<LikePost {...{ post, refetchPosts }} />
+										<LikePost {...{ post, queryKey: ['posts'] }} />
 
 										<BookmarkPost {...{ post }} />
 									</div>
@@ -125,7 +121,7 @@ const HomePage = () => {
 				</Space>
 			</Layout.Content>
 
-			{width >= 1024 && <Sider {...{ refetchPosts }} />}
+			{width >= 1024 && <Sider />}
 		</Fragment>
 	);
 };

@@ -19,9 +19,9 @@ userRouter.get('/search', authMiddleware, SEARCH_USERS);
 userRouter.get('/bots', authMiddleware, GET_BOT_USERS);
 
 userRouter.post('/confirm-username', CHECK_AVAILABLE_USERNAME);
-userRouter.post('/follow', authMiddleware, FOLLOW_USER);
-userRouter.post('/unfollow', authMiddleware, UNFOLLOW_USER);
-userRouter.post('/update-profile-pic', authMiddleware, CHANGE_PROFILE_PIC);
+userRouter.patch('/follow', authMiddleware, FOLLOW_USER);
+userRouter.patch('/unfollow', authMiddleware, UNFOLLOW_USER);
+userRouter.patch('/update-profile-pic', authMiddleware, CHANGE_PROFILE_PIC);
 
 userRouter.get('/:username', authMiddleware, GET_SINGLE_USER);
 userRouter.get('/:username/followers', authMiddleware, GET_FOLLOWERS);

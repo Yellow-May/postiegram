@@ -1,16 +1,9 @@
-import { FC, useState, useEffect, Fragment } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { FC, useState, Fragment } from 'react';
+import { Link } from 'react-router-dom';
 import { Row, Col, Typography, Button, Space, Image } from 'antd';
 import { usePrivateAxios } from 'hooks';
 import { ChangeProfilePicModal, RelationsModal } from 'components';
-import axios from 'axios';
-import { useSelector } from 'react-redux';
-import { getIsPostCreated, togglePostCreated } from 'redux/features/Others';
-import { useAppDispatch } from 'redux/store';
-
-interface InfoSectionProps {
-	isUser: boolean;
-}
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 type UserInfo = {
 	id: string;
@@ -31,49 +24,37 @@ type UserInfo = {
 	isFollower: boolean;
 };
 
-const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
-	// private axios to handle authorized requests without fails
+interface InfoSectionProps {
+	isUser: boolean;
+	userInfo: UserInfo;
+}
+
+const InfoSection: FC<InfoSectionProps> = ({ isUser, userInfo }) => {
+	const queryClient = useQueryClient();
 	const axiosPrivate = usePrivateAxios();
 
-	/**
-	 * user state to fetch and display the info of the user through their username
-	 * useEffect to make the fetch request on component mounting and cancel request when component is unmounted before the request is completed
-	 * also a cleanup to remove the user state to prevent memory leaks
-	 */
-	const location = useLocation();
-	const [user, setUser] = useState<UserInfo | null>(null);
-	const source = axios.CancelToken.source();
-	const username_url = location.pathname.split('/')[1];
-	const fetchUser = async () => {
-		const res = await axiosPrivate.get(`/user/${username_url}`, { cancelToken: source.token });
-		setUser(res.data?.user);
-	};
-	useEffect(() => {
-		fetchUser();
-
-		return function cleanup() {
-			source.cancel();
-			setUser(null);
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [location]);
-
-	// followloading state to handle the change in the 'Follow', 'Unfollow' or 'Follow Back" button when the request is called
-	const [followLoading, setfollowLoading] = useState(false);
-	const followRequest = async ({ url, data }: { url: string; data: { _id?: string; user_id: string } }) => {
-		await axiosPrivate.post(url, data);
-		const res = await axiosPrivate.get(`/user/${username_url}`);
-		setUser(res.data?.user);
-	};
+	// follow and unfollow mutation
+	const mutation = useMutation({
+		mutationFn: async ({
+			url,
+			data,
+		}: {
+			url: string;
+			data: { _id?: string; user_id: string };
+		}) => {
+			return await axiosPrivate.patch(url, data);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries(['user', userInfo?.username]);
+		},
+	});
 	const handleFollowRequest = () => {
-		if (user) {
-			setfollowLoading(true);
-			const user_id = user.id;
-			const _id = user.isFollowing?._id;
-			const url = user.isFollowing ? '/user/unfollow' : '/user/follow';
-			const data = user.isFollowing ? { _id, user_id } : { user_id };
-			followRequest({ url, data });
-			setfollowLoading(false);
+		if (userInfo) {
+			const user_id = userInfo.id;
+			const _id = userInfo.isFollowing?._id;
+			const url = userInfo.isFollowing ? '/user/unfollow' : '/user/follow';
+			const data = userInfo.isFollowing ? { _id, user_id } : { user_id };
+			mutation.mutate({ url, data });
 		}
 	};
 
@@ -81,7 +62,7 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 	 * relations (followers and following)
 	 * state management to handle the modal to display all followers and following respectively
 	 */
-	const [isOpen, setOpen] = useState({ title: 'Followers', visible: false });
+	const [isOpen, setOpen] = useState({ title: 'followers', visible: false });
 	const openModal = (title: string) => setOpen({ title, visible: true });
 	const closeModal = () => setOpen({ title: '', visible: false });
 
@@ -92,26 +73,19 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 	const [isVisible, setVisible] = useState(false);
 	const onClickProfilePic = () => setVisible(true);
 
-	/**
-	 * render page if new post is created
-	 */
-	const isPostCreated = useSelector(getIsPostCreated);
-	const dispatch = useAppDispatch();
-	useEffect(() => {
-		if (isPostCreated) {
-			fetchUser();
-			dispatch(togglePostCreated(false));
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isPostCreated]);
-
-	return user ? (
+	return userInfo ? (
 		<Fragment>
 			<Row style={{ padding: '5px 0 30px 0' }}>
-				<Col {...{ xs: 8, sm: 8, md: 8, lg: 8 }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+				<Col
+					{...{ xs: 8, sm: 8, md: 8, lg: 8 }}
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+					}}>
 					<Image
 						crossOrigin='anonymous'
-						src={user?.profile.profile_pic.url}
+						src={userInfo?.profile.profile_pic.url}
 						width={150}
 						height={150}
 						preview={false}
@@ -122,10 +96,16 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 				</Col>
 				<Col
 					{...{ xs: 16, sm: 16, md: 16, lg: 16 }}
-					style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						justifyContent: 'space-between',
+					}}>
 					<div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-						<Typography.Title level={2} style={{ fontWeight: 300, margin: 0, cursor: 'default' }}>
-							{user?.username}
+						<Typography.Title
+							level={2}
+							style={{ fontWeight: 300, margin: 0, cursor: 'default' }}>
+							{userInfo?.username}
 						</Typography.Title>
 
 						{isUser ? (
@@ -138,34 +118,63 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser }) => {
 							</div>
 						) : (
 							<div>
-								<Button size='small' style={{ fontWeight: 500 }} loading={followLoading} onClick={handleFollowRequest}>
-									{followLoading ? '' : user.isFollowing ? 'Unfollow' : user.isFollower ? 'Follow Back' : 'Follow'}
+								<Button
+									size='small'
+									style={{ fontWeight: 500 }}
+									onClick={handleFollowRequest}>
+									{userInfo.isFollowing
+										? 'Unfollow'
+										: userInfo.isFollower
+										? 'Follow Back'
+										: 'Follow'}
 								</Button>
 							</div>
 						)}
 					</div>
 					<Space size={40}>
 						<Typography.Text style={{ fontSize: '1.1em', cursor: 'default' }}>
-							<Typography.Text strong>{user.posts}</Typography.Text>&nbsp;posts
+							<Typography.Text strong>{userInfo.posts}</Typography.Text>
+							&nbsp;posts
 						</Typography.Text>
-						<Typography.Text style={{ fontSize: '1.1em', cursor: 'pointer' }} onClick={() => openModal('Followers')}>
-							<Typography.Text strong>{user.followers}</Typography.Text>&nbsp;followers
+						<Typography.Text
+							style={{ fontSize: '1.1em', cursor: 'pointer' }}
+							onClick={() => openModal('followers')}>
+							<Typography.Text strong>{userInfo.followers}</Typography.Text>
+							&nbsp;followers
 						</Typography.Text>
-						<Typography.Text style={{ fontSize: '1.1em', cursor: 'pointer' }} onClick={() => openModal('Following')}>
-							<Typography.Text strong>{user.following}</Typography.Text>&nbsp;following
+						<Typography.Text
+							style={{ fontSize: '1.1em', cursor: 'pointer' }}
+							onClick={() => openModal('following')}>
+							<Typography.Text strong>{userInfo.following}</Typography.Text>
+							&nbsp;following
 						</Typography.Text>
 					</Space>
 					<div>
 						<Typography.Title level={5} style={{ margin: 0 }}>
-							{user?.profile.full_name}
+							{userInfo?.profile.full_name}
 						</Typography.Title>
-						<Typography.Text>{user.profile.bio}</Typography.Text>
+						<Typography.Text>{userInfo.profile.bio}</Typography.Text>
 					</div>
 				</Col>
 			</Row>
 
-			{isOpen.visible && <RelationsModal {...{ ...isOpen, closeModal, isUser, followRequest }} />}
-			<ChangeProfilePicModal {...{ isVisible, setVisible, profile_pic: user.profile.profile_pic, fetchUser }} />
+			{isOpen.visible && (
+				<RelationsModal
+					{...{
+						...isOpen,
+						closeModal,
+						isUser,
+						username_url: userInfo.username,
+					}}
+				/>
+			)}
+			<ChangeProfilePicModal
+				{...{
+					isVisible,
+					setVisible,
+					userInfo,
+				}}
+			/>
 		</Fragment>
 	) : (
 		<div style={{ height: 250 }}></div>

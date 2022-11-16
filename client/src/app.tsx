@@ -11,9 +11,8 @@ import {
 	ComingSoonPage,
 	NotFoundPage,
 	UnAuthorizedPage,
-	MyPosts,
-	SavedPosts,
 	ProfilePage,
+	ProfilePostsPage,
 	AccountManagementPage,
 } from 'pages';
 import { RequireAuth, AlreadyAuth, PersistLogin } from 'components';
@@ -30,8 +29,8 @@ const MyApp: FC<MyAppProps> = () => {
 					<Route path='/' element={<PageLayout />}>
 						<Route index element={<HomePage />} />
 						<Route path=':username' element={<ProfilePage />}>
-							<Route index element={<MyPosts />} />
-							<Route path='saved' element={<SavedPosts />} />
+							<Route index element={<ProfilePostsPage />} />
+							<Route path='saved' element={<ProfilePostsPage />} />
 						</Route>
 						<Route path='account/edits' element={<AccountManagementPage />} />
 					</Route>
