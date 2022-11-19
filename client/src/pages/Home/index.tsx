@@ -98,7 +98,7 @@ const HomePage = () => {
 										}}>
 										<LikePost {...{ post, queryKey: ['posts'] }} />
 
-										<BookmarkPost {...{ post }} />
+										<BookmarkPost {...{ post, queryKey: ['posts'] }} />
 									</div>
 
 									<Space direction='horizontal' size={5}>

@@ -1,8 +1,15 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+	QueryObserverResult,
+	RefetchOptions,
+	RefetchQueryFilters,
+	useMutation,
+	useQueryClient,
+} from '@tanstack/react-query';
 import { Button } from 'antd';
 import axios, { CancelTokenSource } from 'axios';
 import { BookmarkFilledIcon, BookmarkOutlinedIcon } from 'components/Icons';
 import { usePrivateAxios } from 'hooks';
+import { DataType } from 'pages/ProfilePosts';
 
 interface BookmarkPostInterface {
 	post: {
@@ -10,11 +17,15 @@ interface BookmarkPostInterface {
 		bookmark_id?: string;
 	};
 	isUser?: boolean;
+	queryKey?: (string | object)[];
+	refetch?: <TPageData>(
+		options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined
+	) => Promise<QueryObserverResult<DataType, unknown>>;
 }
 
 let source: CancelTokenSource | null;
 
-const BookmarkPost = ({ post }: BookmarkPostInterface) => {
+const BookmarkPost = ({ post, queryKey, refetch }: BookmarkPostInterface) => {
 	const axiosPrivate = usePrivateAxios();
 	const queryClient = useQueryClient();
 
@@ -31,7 +42,8 @@ const BookmarkPost = ({ post }: BookmarkPostInterface) => {
 			);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries(['posts']);
+			queryKey && queryClient.invalidateQueries(queryKey);
+			refetch?.();
 		},
 	});
 
