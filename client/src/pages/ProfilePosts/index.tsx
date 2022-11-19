@@ -22,6 +22,7 @@ export type DataType = {
 	media: MediaType[];
 	likes: { username: string; profile_pic: string }[];
 	like_id?: string;
+	bookmarl_id?: string;
 };
 
 const ProfilePosts: FC<ProfilePostsProps> = () => {

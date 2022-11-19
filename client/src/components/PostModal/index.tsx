@@ -1,4 +1,4 @@
-import { FC, useEffect } from 'react';
+import { FC, Fragment, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DeleteFilled } from '@ant-design/icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -6,6 +6,7 @@ import { Carousel, Modal, Typography, Image, Button } from 'antd';
 import LikePost from 'components/LikePost';
 import { usePrivateAxios, useURLQuery } from 'hooks';
 import { DataType } from 'pages/ProfilePosts';
+import BookmarkPost from 'components/BookmarkPost';
 
 interface PostModalProps {
 	isUser: boolean;
@@ -99,11 +100,27 @@ const PostModal: FC<PostModalProps> = ({ isUser, username_url, saved }) => {
 					))}
 				</Carousel>
 
-				<div style={{ marginTop: 16 }}>
+				<div
+					style={{
+						marginTop: 16,
+						display: 'flex',
+						alignItems: 'center',
+					}}>
 					{data && (
-						<LikePost
-							{...{ post: data, isUser: saved ? false : isUser, refetch }}
-						/>
+						<Fragment>
+							<LikePost
+								{...{ post: data, isUser: saved ? false : isUser, refetch }}
+							/>
+							{saved && (
+								<BookmarkPost
+									{...{
+										post: data,
+										queryKey: ['my-posts', { username_url, saved }],
+										refetch,
+									}}
+								/>
+							)}
+						</Fragment>
 					)}
 				</div>
 			</div>

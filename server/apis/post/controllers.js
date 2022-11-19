@@ -172,15 +172,18 @@ module.exports.GET_BOOKMARKED_POSTS = async (req, res) => {
 };
 
 module.exports.GET_BOOKMARKED_POST = async (req, res) => {
-	const { username: req_username } = req.user;
+	const { _id: id, username: req_username } = req.user;
 	const { post_id } = req.params;
 
-	const { _id, caption, media, likes, createdAt } = await PostModel.findById(
-		post_id
-	)
-		.select('_id caption media likes createdAt')
-		.sort({ createdAt: 'desc' })
-		.exec();
+	const { _id, caption, media, likes, createdAt, bookmarks } =
+		await PostModel.findById(post_id)
+			.select('_id caption media likes bookmarks createdAt')
+			.sort({ createdAt: 'desc' })
+			.exec();
+
+	const bookmark_id = bookmarks?.find(bookmark =>
+		bookmark.user_id.equals(id)
+	)?._id;
 
 	let like_id;
 	const postLikes = await Promise.all(
@@ -189,6 +192,7 @@ module.exports.GET_BOOKMARKED_POST = async (req, res) => {
 				.select('username profile.profile_pic.url')
 				.exec();
 			if (username === req_username) like_id = postLike._id;
+
 			return {
 				username,
 				profile_pic: profile.profile_pic.url,
@@ -203,6 +207,7 @@ module.exports.GET_BOOKMARKED_POST = async (req, res) => {
 		createdAt,
 		likes: postLikes,
 		like_id,
+		bookmark_id,
 	};
 
 	res.status(StatusCodes.OK).json({ post });
