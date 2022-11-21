@@ -2,33 +2,19 @@ const postRouter = require('express').Router();
 
 const authMiddleware = require('../auth/middleware');
 const {
-	GET_FOLLOWING_POSTS,
 	CREATE_POST,
-	GET_USER_POSTS,
 	DELETE_POST,
-	TOGGLE_LIKE,
-	GET_SINGLE_POST,
-	TOGGLE_BOOKMARK,
-	GET_BOOKMARKED_POSTS,
-	GET_BOOKMARKED_POST,
+	GET_POSTS,
+	GET_POST,
+	UPDATE_POST_TOGGLE,
 } = require('./controllers');
 
 postRouter.use(authMiddleware);
 
-postRouter.route('/').get(GET_FOLLOWING_POSTS).post(CREATE_POST);
+postRouter.route('/').get(GET_POSTS).post(CREATE_POST);
 
-postRouter.get('/bookmarked', GET_BOOKMARKED_POSTS);
+postRouter.route('/:post_id').get(GET_POST).delete(DELETE_POST);
 
-postRouter.get('/bookmarked/:post_id', GET_BOOKMARKED_POST);
-
-postRouter.get('/:username', GET_USER_POSTS);
-
-postRouter.get('/:username/:post_id', GET_SINGLE_POST);
-
-postRouter.delete('/:post_id', DELETE_POST);
-
-postRouter.patch('/:post_id/like', TOGGLE_LIKE);
-
-postRouter.patch('/:post_id/bookmark', TOGGLE_BOOKMARK);
+postRouter.patch('/:post_id/toggle', UPDATE_POST_TOGGLE);
 
 module.exports = postRouter;

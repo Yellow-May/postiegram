@@ -1,5 +1,5 @@
+import { FC, useMemo } from 'react';
 import { HeartFilled, HeartOutlined } from '@ant-design/icons';
-import { FC } from 'react';
 import { Space, Button, Typography } from 'antd';
 import axios, { CancelTokenSource } from 'axios';
 import { usePrivateAxios } from 'hooks';
@@ -10,41 +10,43 @@ import {
 	useMutation,
 	useQueryClient,
 } from '@tanstack/react-query';
-import { DataType } from 'pages/ProfilePosts';
+import { useSelector } from 'react-redux';
+import { getUser } from 'redux/features/Auth';
+import { PostType } from 'types';
 
 interface LikePostProps {
 	post: {
-		id: string;
-		likes: { username: string; profile_pic: string }[];
-		like_id?: string;
+		_id: string;
+		likes: { _id: string; user_id: string }[];
 	};
-	isUser?: boolean;
 	queryKey?: string[];
 	refetch?: <TPageData>(
 		options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined
-	) => Promise<QueryObserverResult<DataType, unknown>>;
+	) => Promise<QueryObserverResult<PostType, unknown>>;
 }
 
 let source: CancelTokenSource | null;
 
 const LikePost: FC<LikePostProps> = ({
 	post,
-	isUser,
 	queryKey,
 	refetch,
 }: LikePostProps) => {
 	const axiosPrivate = usePrivateAxios();
 	const queryClient = useQueryClient();
+	const user = useSelector(getUser);
+	const like_id = useMemo(
+		() => user && post.likes.find(like => like.user_id === user.id)?._id,
+		[post, user]
+	);
 
 	const mutation = useMutation({
 		mutationFn: async () => {
 			if (source) source.cancel();
 			source = axios.CancelToken.source();
 			await axiosPrivate.patch(
-				`/post/${post.id}/like`,
-				{
-					like_id: post.like_id || null,
-				},
+				`/posts/${post._id}/toggle?like=true`,
+				{ like_id },
 				{ cancelToken: source.token }
 			);
 		},
@@ -56,11 +58,11 @@ const LikePost: FC<LikePostProps> = ({
 
 	return (
 		<Space direction='horizontal' size={5} style={{ flexGrow: 1 }}>
-			{!isUser && (
+			{
 				<Button
 					type='link'
 					icon={
-						post.like_id ? (
+						like_id ? (
 							<HeartFilled style={{ color: '#eb2f96', fontSize: 20 }} />
 						) : (
 							<HeartOutlined style={{ color: '#eb2f96', fontSize: 20 }} />
@@ -68,15 +70,15 @@ const LikePost: FC<LikePostProps> = ({
 					}
 					onClick={() => mutation.mutate()}
 				/>
-			)}
+			}
 
 			{post.likes[0] && (
 				<Typography.Text style={{ maxWidth: 250 }} ellipsis>
-					{post.likes.length > 1
-						? `Liked by ${post.likes[0].username} and ${
-								post.likes.length - 1
-						  } other`
-						: `Liked by ${post.likes[0].username}`}
+					{like_id && post.likes.length > 1
+						? `Liked by ${post.likes.length - 1} others`
+						: !like_id && post.likes.length > 0
+						? `Liked by ${post.likes.length} others`
+						: ``}
 				</Typography.Text>
 			)}
 		</Space>

@@ -5,6 +5,6 @@ const userRouter = require('./user/routes');
 
 apiRouter.use('/', authRouter);
 apiRouter.use('/user', userRouter);
-apiRouter.use('/post', postRouter);
+apiRouter.use('/posts', postRouter);
 
 module.exports = apiRouter;
