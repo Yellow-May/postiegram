@@ -71,7 +71,7 @@ const PostModal: FC<PostModalProps> = ({ queryKey }) => {
 		width: 480,
 		centered: true,
 		footer:
-			user?.id === data?.creator_id ? (
+			user?._id === data?.creator_id ? (
 				<Button {...{ danger: true, onClick: confirmModal }}>
 					<DeleteFilled />
 				</Button>
@@ -106,7 +106,7 @@ const PostModal: FC<PostModalProps> = ({ queryKey }) => {
 					{data && (
 						<Fragment>
 							<LikePost {...{ post: data, refetch }} />
-							{user?.id !== data.creator_id && (
+							{user?._id !== data.creator_id && (
 								<BookmarkPost
 									{...{
 										post: data,

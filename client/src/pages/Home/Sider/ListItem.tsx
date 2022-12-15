@@ -1,16 +1,18 @@
-import { BotUserType } from '.';
 import { usePrivateAxios } from 'hooks';
 import { List, Button, Avatar } from 'antd';
 import { Link } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { UserType } from 'types';
 
-const ListItem = ({ bot }: { bot: BotUserType }) => {
+const ListItem = ({ bot }: { bot: UserType }) => {
 	const axiosPrivate = usePrivateAxios();
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation({
 		mutationFn: async () => {
-			return await axiosPrivate.patch('/user/follow', { user_id: bot.id });
+			return await axiosPrivate.patch('/users/toggle-follow?follow=true', {
+				user_id: bot._id,
+			});
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries(['posts']);

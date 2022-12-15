@@ -3,10 +3,9 @@ import { useDispatch } from 'react-redux';
 
 // reducers
 import auth from './features/Auth';
-import others from './features/Others';
 
 const store = configureStore({
-	reducer: { auth, others },
+	reducer: { auth },
 });
 
 export type RootState = ReturnType<typeof store.getState>;

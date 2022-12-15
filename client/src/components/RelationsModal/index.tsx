@@ -1,90 +1,89 @@
-import { FC, Fragment, useRef } from 'react';
+import { FC, Fragment, useCallback, useRef } from 'react';
 import { Avatar, Badge, Button, List, Modal, Skeleton } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import { usePrivateAxios } from 'hooks';
 import axios from 'axios';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { UserType } from 'types';
+import { useSelector } from 'react-redux';
+import { getUser } from 'redux/features/Auth';
 
 interface RelationsModalProps {
 	isUser: boolean;
 	title: string;
 	visible: boolean;
 	closeModal: () => void;
-	username_url: string;
+	userInfo: UserType;
 }
-
-type RelationsInfo = {
-	full_name: string;
-	profile_pic: string;
-	user_id: string;
-	username: string;
-	id?: string;
-	loading: boolean;
-	isFollowing?: { _id: string };
-	isFollower?: boolean;
-};
 
 const RelationsModal: FC<RelationsModalProps> = ({
 	isUser,
 	title,
 	visible,
 	closeModal,
-	username_url,
+	userInfo,
 }) => {
-	/**
-	 * state management
-	 * initLoading for the inital loading on mount
-	 * data for the response data
-	 * axiosPrivate for private requests, source to handle request CancelToken to stop request in certain situations like unmount
-	 */
 	const changeRef = useRef(false);
 	const axiosPrivate = usePrivateAxios();
 	const source = axios.CancelToken.source();
 	const navigate = useNavigate();
+	const user = useSelector(getUser);
 	const queryClient = useQueryClient();
+	const queryKey = ['users', { user_id: userInfo._id, relationship: title }];
 
-	const { isLoading, data } = useQuery(
-		['relationship', username_url, title],
-		async () => {
-			const res = await axiosPrivate(`/user/${username_url}/${title}`, {
-				cancelToken: source.token,
-			});
-			return (res.data?.followers || res.data?.following) as RelationsInfo[];
-		}
+	const follow_type = useCallback(
+		(specificUser: UserType) => {
+			const isFollowing = specificUser?.followers.find(
+				e => e.user_id === user?._id
+			);
+			const isFollower = specificUser?.following.find(
+				e => e.user_id === user?._id
+			);
+			return { isFollowing, isFollower };
+		},
+		[user]
 	);
+
+	const { isLoading, isFetching, data } = useQuery(queryKey, async () => {
+		const res = await axiosPrivate(
+			`/users?user_id=${userInfo._id}&${title}=true`,
+			{
+				cancelToken: source.token,
+			}
+		);
+		return res.data?.users as UserType[];
+	});
 
 	const mutation = useMutation({
 		mutationFn: async ({
-			url,
+			query,
 			data,
 		}: {
-			url: string;
-			data: { _id?: string; user_id: string };
+			query: string;
+			data: { follow_id?: string; user_id: string };
 		}) => {
-			return await axiosPrivate.patch(url, data);
+			return await axiosPrivate.patch(`users/toggle-follow?${query}`, data);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries(['relationship', username_url, title]);
+			queryClient.invalidateQueries(queryKey);
 			changeRef.current = true;
 		},
 	});
-	const handleFollowRequest = async (user: RelationsInfo) => {
-		const user_id = user.user_id;
-		const _id = user.isFollowing?._id || user.id;
-		const url =
-			user.isFollowing || title === 'following'
-				? '/user/unfollow'
-				: '/user/follow';
-		const data = _id ? { _id, user_id } : { user_id };
-		mutation.mutate({ url, data });
+	const handleFollowRequest = async (user: UserType) => {
+		const { isFollowing } = follow_type(user);
+		const user_id = user._id;
+		const query = isFollowing ? 'unfollow=true' : 'follow=true';
+		const follow_id = isFollowing?._id;
+		const data = isFollowing ? { follow_id, user_id } : { user_id };
+		mutation.mutate({ query, data });
 	};
 
 	// action button logic, either 'Follow', 'Unfollow' or 'Follow Back'
-	const action = (item: RelationsInfo) => {
+	const action = (item: UserType) => {
 		if (isUser) {
 			return (
 				<Button onClick={() => handleFollowRequest(item)}>
-					{title === 'Followers' && !item.isFollowing
+					{title === 'Followers' && !follow_type(item).isFollowing
 						? 'Follow Back'
 						: 'Unfollow'}
 				</Button>
@@ -107,7 +106,7 @@ const RelationsModal: FC<RelationsModalProps> = ({
 		source.cancel();
 		closeModal();
 		if (changeRef.current === true)
-			queryClient.invalidateQueries(['user', username_url]);
+			queryClient.invalidateQueries(['user', userInfo.username]);
 	};
 
 	// modal props
@@ -130,17 +129,20 @@ const RelationsModal: FC<RelationsModalProps> = ({
 				dataSource={data}
 				renderItem={item => (
 					<List.Item actions={[action(item)]}>
-						<Skeleton avatar title={false} loading={item.loading} active>
+						<Skeleton avatar title={false} loading={isFetching} active>
 							<List.Item.Meta
 								avatar={
-									<Avatar crossOrigin='anonymous' src={item.profile_pic} />
+									<Avatar
+										crossOrigin='anonymous'
+										src={item.profile.profile_pic.url}
+									/>
 								}
 								title={
 									<Fragment>
 										<Link to={`/${item.username}`} onClick={onCancel}>
 											{item.username}
 										</Link>
-										{title === 'Following' && item.isFollower && (
+										{title === 'Following' && follow_type(item).isFollower && (
 											<Badge
 												count={'follows you'}
 												style={{
@@ -150,7 +152,7 @@ const RelationsModal: FC<RelationsModalProps> = ({
 												}}
 											/>
 										)}
-										{title === 'Followers' && item.isFollowing && (
+										{title === 'Followers' && follow_type(item).isFollowing && (
 											<Badge
 												count={'following'}
 												style={{
@@ -162,7 +164,7 @@ const RelationsModal: FC<RelationsModalProps> = ({
 										)}
 									</Fragment>
 								}
-								description={item.full_name}
+								description={item.profile.full_name}
 							/>
 						</Skeleton>
 					</List.Item>

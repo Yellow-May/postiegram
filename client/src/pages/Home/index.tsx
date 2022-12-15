@@ -16,7 +16,6 @@ const HomePage = () => {
 		['posts', { username: null, bookmarked: null }],
 		async () => {
 			const res = await axiosPrivate.get('/posts');
-			console.log(res.data.posts);
 			return res.data.posts as PostType[];
 		}
 	);

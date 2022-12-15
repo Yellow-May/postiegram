@@ -29,7 +29,9 @@ const ProfilePosts: FC<ProfilePostsProps> = () => {
 
 	return (
 		<Fragment>
-			<Row gutter={24} style={{ margin: 0 }}>
+			<Row
+				gutter={[24, 24]}
+				style={{ marginRight: 0, marginLeft: 0, paddingBottom: 24 }}>
 				{data?.map(post => {
 					const { caption, _id, media } = post;
 					const { url } = media[0];

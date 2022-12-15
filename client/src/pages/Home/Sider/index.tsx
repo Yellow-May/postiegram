@@ -4,27 +4,16 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getUser } from 'redux/features/Auth';
 import { usePrivateAxios } from 'hooks';
+import { UserType } from 'types';
 import ListItem from './ListItem';
-
-export type BotUserType = {
-	id: string;
-	username: string;
-	profile: {
-		full_name: string;
-		profile_pic: {
-			url: string;
-		};
-	};
-	isFollowing: boolean;
-};
 
 const Sider = () => {
 	const user = useSelector(getUser);
 	const axiosPrivate = usePrivateAxios();
 
 	const { data: botsData } = useQuery(['bot-users'], async () => {
-		const res = await axiosPrivate('/user/bots');
-		return res.data.users as BotUserType[];
+		const res = await axiosPrivate('/users?bots=true');
+		return res.data.users as UserType[];
 	});
 
 	return (

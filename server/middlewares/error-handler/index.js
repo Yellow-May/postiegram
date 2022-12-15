@@ -9,13 +9,13 @@ module.exports = (err, _req, res, next) => {
 
 	if (err instanceof CustomAPIError)
 		errorObj = {
-			statusCode: err.statusCode,
-			message: err.message,
+			statusCode: err?.statusCode,
+			message: err?.message,
 		};
 
-	if (err.code === 11000) {
-		const val = err.keyValue.username || err.keyValue.email;
-		const key = err.keyValue.username ? 'username' : 'email';
+	if (err?.code === 11000) {
+		const val = err?.keyValue.username || err.keyValue?.email;
+		const key = err?.keyValue.username ? 'username' : 'email';
 		const message = `${key} ${val} has been used`;
 		errorObj = {
 			statusCode: StatusCodes.BAD_REQUEST,
@@ -23,24 +23,24 @@ module.exports = (err, _req, res, next) => {
 		};
 	}
 
-	if (err.name === 'CastError')
+	if (err?.name === 'CastError')
 		errorObj = {
 			statusCode: StatusCodes.BAD_REQUEST,
 			message: 'invalid id',
 		};
 
-	if (err.name === 'ValidationError') {
-		const error = err.errors.status || err.errors.userId;
+	if (err?.name === 'ValidationError') {
+		const error = err?.errors?.status || err?.errors?.userId;
 		errorObj = {
 			statusCode: StatusCodes.BAD_REQUEST,
-			message: error.message,
+			message: error?.message,
 		};
 	}
 
-	if (err.name === 'JsonWebTokenError') {
+	if (err?.name === 'JsonWebTokenError') {
 		errorObj = {
 			statusCode: StatusCodes.UNAUTHORIZED,
-			message: err.message,
+			message: err?.message,
 		};
 	}
 

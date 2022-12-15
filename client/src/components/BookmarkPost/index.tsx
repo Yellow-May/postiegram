@@ -34,7 +34,7 @@ const BookmarkPost = ({ post, queryKey, refetch }: BookmarkPostInterface) => {
 	const bookmark_id = useMemo(
 		() =>
 			user &&
-			post.bookmarks.find(bookmark => bookmark.user_id === user.id)?._id,
+			post.bookmarks.find(bookmark => bookmark.user_id === user._id)?._id,
 		[post, user]
 	);
 

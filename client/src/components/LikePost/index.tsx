@@ -36,7 +36,7 @@ const LikePost: FC<LikePostProps> = ({
 	const queryClient = useQueryClient();
 	const user = useSelector(getUser);
 	const like_id = useMemo(
-		() => user && post.likes.find(like => like.user_id === user.id)?._id,
+		() => user && post.likes.find(like => like.user_id === user._id)?._id,
 		[post, user]
 	);
 

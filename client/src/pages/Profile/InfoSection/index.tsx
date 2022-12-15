@@ -1,48 +1,38 @@
-import { FC, useState, Fragment } from 'react';
+import { FC, useState, Fragment, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Row, Col, Typography, Button, Space, Image } from 'antd';
 import { usePrivateAxios } from 'hooks';
 import { ChangeProfilePicModal, RelationsModal } from 'components';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-
-type UserInfo = {
-	id: string;
-	username: string;
-	profile: {
-		full_name: string;
-		bio: string;
-		profile_pic: {
-			_id: string;
-			url: string;
-			public_id: string;
-		};
-	};
-	posts: number;
-	followers: number;
-	following: number;
-	isFollowing?: { _id: string };
-	isFollower: boolean;
-};
+import { UserType } from 'types';
+import { useSelector } from 'react-redux';
+import { getUser } from 'redux/features/Auth';
 
 interface InfoSectionProps {
 	isUser: boolean;
-	userInfo: UserInfo;
+	userInfo: UserType;
 }
 
 const InfoSection: FC<InfoSectionProps> = ({ isUser, userInfo }) => {
 	const queryClient = useQueryClient();
 	const axiosPrivate = usePrivateAxios();
+	const user = useSelector(getUser);
+	const { isFollowing, isFollower } = useMemo(() => {
+		const isFollowing = userInfo?.followers.find(e => e.user_id === user?._id);
+		const isFollower = userInfo?.following.find(e => e.user_id === user?._id);
+		return { isFollowing, isFollower };
+	}, [userInfo, user]);
 
 	// follow and unfollow mutation
 	const mutation = useMutation({
 		mutationFn: async ({
-			url,
+			query,
 			data,
 		}: {
-			url: string;
-			data: { _id?: string; user_id: string };
+			query: string;
+			data: { follow_id?: string; user_id: string };
 		}) => {
-			return await axiosPrivate.patch(url, data);
+			return await axiosPrivate.patch(`users/toggle-follow?${query}`, data);
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries(['user', userInfo?.username]);
@@ -50,11 +40,11 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser, userInfo }) => {
 	});
 	const handleFollowRequest = () => {
 		if (userInfo) {
-			const user_id = userInfo.id;
-			const _id = userInfo.isFollowing?._id;
-			const url = userInfo.isFollowing ? '/user/unfollow' : '/user/follow';
-			const data = userInfo.isFollowing ? { _id, user_id } : { user_id };
-			mutation.mutate({ url, data });
+			const user_id = userInfo._id;
+			const query = isFollowing ? 'unfollow=true' : 'follow=true';
+			const follow_id = isFollowing?._id;
+			const data = isFollowing ? { follow_id, user_id } : { user_id };
+			mutation.mutate({ query, data });
 		}
 	};
 
@@ -122,9 +112,9 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser, userInfo }) => {
 									size='small'
 									style={{ fontWeight: 500 }}
 									onClick={handleFollowRequest}>
-									{userInfo.isFollowing
+									{isFollowing
 										? 'Unfollow'
-										: userInfo.isFollower
+										: isFollower
 										? 'Follow Back'
 										: 'Follow'}
 								</Button>
@@ -133,19 +123,23 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser, userInfo }) => {
 					</div>
 					<Space size={40}>
 						<Typography.Text style={{ fontSize: '1.1em', cursor: 'default' }}>
-							<Typography.Text strong>{userInfo.posts}</Typography.Text>
+							<Typography.Text strong>{userInfo?.total_posts}</Typography.Text>
 							&nbsp;posts
 						</Typography.Text>
 						<Typography.Text
 							style={{ fontSize: '1.1em', cursor: 'pointer' }}
 							onClick={() => openModal('followers')}>
-							<Typography.Text strong>{userInfo.followers}</Typography.Text>
+							<Typography.Text strong>
+								{userInfo.followers.length}
+							</Typography.Text>
 							&nbsp;followers
 						</Typography.Text>
 						<Typography.Text
 							style={{ fontSize: '1.1em', cursor: 'pointer' }}
 							onClick={() => openModal('following')}>
-							<Typography.Text strong>{userInfo.following}</Typography.Text>
+							<Typography.Text strong>
+								{userInfo.following.length}
+							</Typography.Text>
 							&nbsp;following
 						</Typography.Text>
 					</Space>
@@ -164,14 +158,14 @@ const InfoSection: FC<InfoSectionProps> = ({ isUser, userInfo }) => {
 						...isOpen,
 						closeModal,
 						isUser,
-						username_url: userInfo.username,
+						userInfo,
 					}}
 				/>
 			)}
 			<ChangeProfilePicModal
 				{...{
-					isVisible,
-					setVisible,
+					visible: isVisible,
+					close: () => setVisible(false),
 					userInfo,
 				}}
 			/>
