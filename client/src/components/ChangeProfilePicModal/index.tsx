@@ -1,41 +1,30 @@
 import { message, Modal, Upload, Image, PageHeader, Button } from 'antd';
-import { Dispatch, FC, SetStateAction, useState } from 'react';
+import { FC, useState } from 'react';
 import { usePrivateAxios } from 'hooks';
 import { customRequestProfilePic, destroyRequest, uploadRequest } from 'utils';
 import ImgCrop from 'antd-img-crop';
 import { UploadChangeParam } from 'antd/lib/upload';
 import { RcFile, UploadFile } from 'antd/lib/upload/interface';
 import { InboxOutlined } from '@ant-design/icons';
-import { useAppDispatch } from 'redux/store';
-import { updateUserInfo } from 'redux/features/Auth';
 import axios from 'axios';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { UserType } from 'types';
 
 interface ChangeProfilePicModalProps {
-	isVisible: boolean;
-	setVisible: Dispatch<SetStateAction<boolean>>;
-	userInfo: {
-		username: string;
-		profile: {
-			profile_pic: {
-				_id: string;
-				url: string;
-				public_id: string;
-			};
-		};
-	};
+	visible: boolean;
+	close: () => void;
+	userInfo: UserType;
 }
 
 const ChangeProfilePicModal: FC<ChangeProfilePicModalProps> = ({
-	isVisible,
-	setVisible,
+	visible,
+	close,
 	userInfo,
 }) => {
 	const [imgPreview, setPreview] = useState('');
 	const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
 	const [loading, setLoading] = useState(false);
 	const axiosPrivate = usePrivateAxios();
-	const dispatch = useAppDispatch();
 	const queryClient = useQueryClient();
 
 	// handle onChange to save preview src and update fileList
@@ -74,39 +63,45 @@ const ChangeProfilePicModal: FC<ChangeProfilePicModalProps> = ({
 		setFileList([]);
 		setLoading(false);
 		source.cancel();
-		setVisible(false);
+		close();
 	};
 
 	/**
 	 * handles the onOk button for the modal
 	 * Also performs the Form validation and upload before closing the modal
 	 */
+	const mutation = useMutation({
+		mutationFn: async (data: {
+			profile_pic: { name: string; url: string; public_id: string };
+		}) => {
+			await axiosPrivate.patch('/users/update-profile', data, {
+				cancelToken: source.token,
+			});
+		},
+		onSuccess: () => {
+			message.success('Profile updated');
+			queryClient.invalidateQueries(['user', userInfo.username]);
+			onCancel();
+		},
+	});
 	const onOk = async () => {
 		if (fileList[0]) {
 			setLoading(true);
 			const file = fileList[0];
 			await destroyRequest(userInfo.profile.profile_pic.public_id);
 			const data = await uploadRequest(file.response, source);
-			const new_profile_pic = {
+			const profile_pic = {
 				name: file.name,
-				url: data.secure_url,
-				public_id: data.public_id,
+				url: data?.secure_url as string,
+				public_id: data?.public_id as string,
 			};
-			const res = await axiosPrivate.post(
-				'/user/update-profile-pic',
-				{ new_profile_pic },
-				{ cancelToken: source.token }
-			);
-			message.success(res.data.message);
-			dispatch(updateUserInfo({ profile: res.data.user.profile }));
-			queryClient.invalidateQueries(['user', userInfo.username]);
-			onCancel();
+			mutation.mutate({ profile_pic });
 		}
 	};
 
 	const modalProps = {
 		title,
-		visible: isVisible,
+		visible,
 		width: 360,
 		centered: true,
 		onCancel,

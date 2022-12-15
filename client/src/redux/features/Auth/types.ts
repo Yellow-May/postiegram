@@ -1,20 +1,4 @@
-export enum UserRole {
-	all = 2001,
-	admin = 1998,
-}
-
-export type UserType = {
-	id: string;
-	role: UserRole;
-	username: string;
-	profile: {
-		full_name: string;
-		profile_pic: {
-			url: string;
-			public_id: string;
-		};
-	};
-};
+import { UserType } from 'types';
 
 export interface AuthState {
 	loading: boolean;

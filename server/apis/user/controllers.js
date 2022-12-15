@@ -2,71 +2,60 @@ const { StatusCodes } = require('http-status-codes');
 const { v4: uuidv4 } = require('uuid');
 const UserModel = require('./model');
 const PostModel = require('../post/model');
-const { UnAcceptableError, NotFoundError } = require('../../utils/custom-errors');
+const {
+	UnAcceptableError,
+	NotFoundError,
+} = require('../../utils/custom-errors');
 
-module.exports.GET_ALL_USERS = async (_req, res) => {
-	const raw_users = await UserModel.find({ role: 2001 })
-		.select('username profile followers following')
-		.sort({ createdAt: 'desc' })
-		.exec();
-	const users = await Promise.all(
-		raw_users.map(async user => ({
-			id: user._id,
-			username: user.username,
-			profile: user.profile,
-			posts: (await PostModel.find({ creator_id: user._id })).length,
-			followers: user.followers.length,
-			following: user.following.length,
-		}))
-	);
+// nEw
+module.exports.GET_USERS = async (req, res) => {
+	const { _id, username } = req.user;
+	const { bots, followers, following, q, user_id } = req.query;
 
-	res.status(StatusCodes.OK).json({ users, nBits: users.length });
-};
+	const query = {};
 
-module.exports.SEARCH_USERS = async (req, res) => {
-	const { username } = req.user;
-	const { q } = req.query;
-
-	const users = await UserModel.find({
-		$and: [{ username: { $ne: username } }, { username: { $regex: new RegExp(q), $options: 'i' } }],
-	})
-		.select('username profile')
-		.exec();
-
-	res.status(StatusCodes.OK).json({ users });
-};
-
-module.exports.GET_SINGLE_USER = async (req, res) => {
-	const { _id: id } = req.user;
-	const { username } = req.params;
-
-	const requesting_user = await UserModel.findById(id).select('username following followers');
-	const raw_user = await UserModel.findOne({ username });
-	if (!raw_user) throw new NotFoundError('User not found');
-	const isFollowing = requesting_user.following.find(e => raw_user.followers.id(e._id));
-	const isFollower = requesting_user.followers.find(e => raw_user.following.id(e._id)) ? true : false;
-
-	const user = {
-		id: raw_user._id,
-		username: raw_user.username,
-		profile: raw_user.profile,
-		posts: (await PostModel.find({ creator_id: raw_user._id })).length,
-		followers: raw_user.followers.length,
-		following: raw_user.following.length,
-		isFollower,
-		isFollowing,
-	};
-
-	if (requesting_user.username === username) {
-		delete user.isFollower;
-		delete user.isFollowing;
+	if (user_id) {
+		if (followers) query['following.user_id'] = { $in: user_id };
+		if (following) query['followers.user_id'] = { $in: user_id };
+	}
+	if (bots) {
+		query.role = 1001;
+		query['followers.user_id'] = { $ne: _id };
+	}
+	if (q) {
+		query['$and'] = [
+			{ username: { $ne: username } },
+			{
+				$or: [
+					{ username: { $regex: new RegExp(q), $options: 'i' } },
+					{ 'profile.full_name': { $regex: new RegExp(q), $options: 'i' } },
+				],
+			},
+		];
 	}
 
-	res.status(StatusCodes.OK).json({ user });
+	const users = await UserModel.find(query)
+		.select('username role profile followers following')
+		.exec();
+
+	return res.status(StatusCodes.OK).json({ users, nBits: users.length });
+};
+
+module.exports.GET_USER = async (req, res) => {
+	const { username } = req.params;
+
+	const user = await UserModel.findOne({ username })
+		.select('username role profile followers following')
+		.exec();
+	if (!user) throw new NotFoundError('User not found');
+
+	const total_posts = await PostModel.find({ creator_id: user._id }).count();
+
+	return res.status(StatusCodes.OK).json({ ...user?._doc, total_posts });
 };
 
 module.exports.CHECK_AVAILABLE_USERNAME = async (req, res) => {
-	const { username } = req.body;
+	const { username } = req.query;
 
 	const usernameUsed = await UserModel.findOne({ username });
 	if (usernameUsed) throw new UnAcceptableError('Username has been used');
@@ -74,116 +63,57 @@ module.exports.CHECK_AVAILABLE_USERNAME = async (req, res) => {
 	res.status(StatusCodes.OK).json({ message: 'Username is available' });
 };
 
-module.exports.FOLLOW_USER = async (req, res) => {
-	const { _id: id } = req.user;
-	const { user_id } = req.body;
-	const _id = uuidv4();
+module.exports.UPDATE_USER_PROFILE = async (req, res) => {
+	const { _id } = req.user;
+	const updates = req.body;
 
-	const user = await UserModel.findById(id);
-	user.following.unshift({ _id, user_id });
-	await user.save();
+	const query = {};
+	const updatesKeys = Object.keys(updates);
 
-	const followed_user = await UserModel.findById(user_id);
-	followed_user.followers.unshift({ _id, user_id: id });
-	await followed_user.save();
+	updatesKeys.forEach(key => {
+		query[`profile.${key}`] = updates[key];
+	});
 
-	res.status(StatusCodes.CREATED).json({ message: 'Followed user' });
-};
-
-module.exports.UNFOLLOW_USER = async (req, res) => {
-	const { _id: id } = req.user;
-	const { _id, user_id } = req.body;
-
-	const user = await UserModel.findById(id);
-	user.following.id(_id).remove();
-	await user.save();
-
-	const followed_user = await UserModel.findById(user_id);
-	followed_user.followers.id(_id).remove();
-	await followed_user.save();
-
-	res.status(StatusCodes.CREATED).json({ message: 'Unfollowed user' });
-};
-
-module.exports.GET_FOLLOWERS = async (req, res) => {
-	const { _id: id } = req.user;
-	const { username } = req.params;
-
-	const requesting_user = await UserModel.findById(id).select('username following');
-	const user = await UserModel.findOne({ username }).select('followers');
-	const followers = await Promise.all(
-		user.followers.map(async e => {
-			const {
-				username,
-				profile,
-				followers: eFollowers,
-			} = await UserModel.findById(e.user_id).select('username profile followers');
-			return {
-				user_id: e.user_id,
-				username,
-				full_name: profile.full_name,
-				profile_pic: profile.profile_pic.url,
-				isFollowing: requesting_user.following.find(e => eFollowers.id(e._id)),
-			};
-		})
-	);
-
-	res.status(StatusCodes.OK).json({ followers, nBits: followers.length });
-};
-
-module.exports.GET_FOLLOWING = async (req, res) => {
-	const { _id: id } = req.user;
-	const { username } = req.params;
-
-	const requesting_user = await UserModel.findById(id).select('username followers');
-	const user = await UserModel.findOne({ username }).select('following');
-	const following = await Promise.all(
-		user.following.map(async e => {
-			const {
-				username,
-				profile,
-				following: eFollowing,
-			} = await UserModel.findById(e.user_id).select('username profile following');
-			return {
-				id: e.id,
-				user_id: e.user_id,
-				username,
-				full_name: profile.full_name,
-				profile_pic: profile.profile_pic.url,
-				isFollower: requesting_user.followers.find(e => eFollowing.id(e._id)) ? true : false,
-			};
-		})
-	);
-
-	res.status(StatusCodes.OK).json({ following, nBits: following.length });
-};
-
-module.exports.CHANGE_PROFILE_PIC = async (req, res) => {
-	const { _id: id } = req.user;
-	const { new_profile_pic } = req.body;
-
-	const user = await UserModel.findByIdAndUpdate(
-		id,
-		{ $set: { 'profile.profile_pic': new_profile_pic } },
+	await UserModel.findByIdAndUpdate(
+		_id,
+		{ $set: query },
 		{ new: true, runValidators: true }
 	);
-	res.status(StatusCodes.OK).json({ message: 'Profile picture updated', user });
+
+	res.status(StatusCodes.OK).json({ message: 'User Profile updated' });
 };
 
-module.exports.GET_BOT_USERS = async (req, res) => {
-	const { _id: id } = req.user;
+module.exports.TOGGLE_FOLLOW = async (req, res) => {
+	const { _id } = req.user;
+	const { follow, unfollow } = req.query;
+	const { follow_id, user_id } = req.body;
 
-	const requesting_user = await UserModel.findById(id).select('following');
-	const raw_users = await UserModel.find({ role: 1001 });
+	const user = await UserModel.findById(_id);
+	const followed_user = await UserModel.findById(user_id);
 
-	const users = raw_users
-		.map(user => ({
-			id: user._id,
-			username: user.username,
-			profile: user.profile,
-			isFollowing: requesting_user.following.find(e => user.followers.id(e._id)) ? true : false,
-		}))
-		.filter(e => !e.isFollowing);
+	if (unfollow) {
+		user.following.id(follow_id).remove();
+		followed_user.followers.id(follow_id).remove();
+		await PostModel.updateMany(
+			{ creator_id: user_id },
+			{ $pull: { subscribers: { user_id: _id } } }
+		);
+	}
 
-	res.status(StatusCodes.OK).json({ users });
+	if (follow) {
+		const follow_id = uuidv4();
+		user.following.unshift({ _id: follow_id, user_id });
+		followed_user.followers.unshift({ _id: follow_id, user_id: _id });
+		await PostModel.updateMany(
+			{ creator_id: user_id },
+			{ $push: { subscribers: { user_id: _id } } }
+		);
+	}
+
+	await user.save();
+	await followed_user.save();
+
+	res
+		.status(StatusCodes.OK)
+		.json({ message: follow ? 'Followed user' : 'Unfollowed user' });
 };

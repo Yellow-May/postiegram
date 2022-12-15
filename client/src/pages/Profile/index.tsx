@@ -8,7 +8,7 @@ import { FC } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { getUser } from 'redux/features/Auth';
-import { UserType } from 'redux/features/Auth/types';
+import { UserType } from 'types';
 import InfoSection from './InfoSection';
 
 const auth_user_menu = (user: UserType) => [
@@ -93,10 +93,10 @@ const ProfilePage: FC<ProfilePageProps> = () => {
 	const source = axios.CancelToken.source();
 
 	const { data: userInfo } = useQuery(['user', username_url], async () => {
-		const res = await axiosPrivate.get(`/user/${username_url}`, {
+		const res = await axiosPrivate.get(`/users/${username_url}`, {
 			cancelToken: source.token,
 		});
-		return res.data?.user;
+		return res.data;
 	});
 
 	return (

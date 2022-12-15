@@ -47,6 +47,9 @@ const PostSchema = new mongoose.Schema(
 		bookmarks: {
 			type: [UserInteractionSchema],
 		},
+		subscribers: {
+			type: [UserInteractionSchema],
+		},
 	},
 	{ timestamps: true }
 );

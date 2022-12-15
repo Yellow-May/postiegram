@@ -3,25 +3,15 @@ import { usePrivateAxios } from 'hooks';
 import { ChangeEvent, FC, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios, { CancelTokenSource } from 'axios';
+import { UserType } from 'types';
 
 interface SearchBarProps {}
-
-type ResultType = {
-	username: string;
-	profile: {
-		full_name: string;
-		bio: string;
-		profile_pic: {
-			url: string;
-		};
-	};
-};
 
 let source: CancelTokenSource | null;
 
 const SearchBar: FC<SearchBarProps> = () => {
 	const [value, setValue] = useState('');
-	const [results, setResults] = useState<ResultType[]>([]);
+	const [results, setResults] = useState<UserType[]>([]);
 	const axiosPrivate = usePrivateAxios();
 
 	const resetResults = () => {
@@ -33,7 +23,9 @@ const SearchBar: FC<SearchBarProps> = () => {
 	const searchRequest = async (value: string) => {
 		if (source) source.cancel('Operation canceled due to new request.');
 		source = axios.CancelToken.source();
-		const res = await axiosPrivate.get(`/user/search?q=${value}`, { cancelToken: source.token });
+		const res = await axiosPrivate.get(`/users?q=${value}`, {
+			cancelToken: source.token,
+		});
 		setResults(res.data.users);
 	};
 
@@ -44,7 +36,8 @@ const SearchBar: FC<SearchBarProps> = () => {
 	};
 
 	return (
-		<div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+		<div
+			style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
 			<Input.Search
 				placeholder='search users...'
 				allowClear
@@ -61,7 +54,12 @@ const SearchBar: FC<SearchBarProps> = () => {
 					renderItem={item => (
 						<List.Item>
 							<List.Item.Meta
-								avatar={<Avatar crossOrigin='anonymous' src={item.profile.profile_pic.url} />}
+								avatar={
+									<Avatar
+										crossOrigin='anonymous'
+										src={item.profile.profile_pic.url}
+									/>
+								}
 								title={
 									<Link to={`/${item.username}`} onClick={resetResults}>
 										{item.profile.full_name}

@@ -5,31 +5,20 @@ import { useQuery } from '@tanstack/react-query';
 import { BookmarkPost, LikePost } from 'components';
 import { useDimensions, usePrivateAxios } from 'hooks';
 import { PostedSince } from 'utils';
+import { PostType } from 'types';
 import Sider from './Sider';
-
-type DataType = {
-	caption: string;
-	created_at: string;
-	creator: {
-		full_name: string;
-		id: string;
-		profile_pic: string;
-		username: string;
-	};
-	id: string;
-	media: { url: string }[];
-	likes: { username: string; profile_pic: string }[];
-	like_id?: string;
-};
 
 const HomePage = () => {
 	const axiosPrivate = usePrivateAxios();
 	const { width } = useDimensions();
 
-	const { isLoading, data } = useQuery(['posts'], async () => {
-		const res = await axiosPrivate.get('/post');
-		return res.data.posts as DataType[];
-	});
+	const { isLoading, data } = useQuery(
+		['posts', { username: null, bookmarked: null }],
+		async () => {
+			const res = await axiosPrivate.get('/posts');
+			return res.data.posts as PostType[];
+		}
+	);
 
 	return (
 		<Fragment>
@@ -52,7 +41,7 @@ const HomePage = () => {
 
 					{data?.map(post => (
 						<Card
-							key={post.id}
+							key={post._id}
 							className='custom-post-card'
 							bordered
 							loading={isLoading}
@@ -61,7 +50,7 @@ const HomePage = () => {
 									avatar={
 										<Avatar
 											crossOrigin='anonymous'
-											src={post.creator.profile_pic}
+											src={post.creator.profile.profile_pic.url}
 										/>
 									}
 									title={
@@ -112,7 +101,7 @@ const HomePage = () => {
 									<Typography.Text
 										type='secondary'
 										style={{ fontSize: '0.8em' }}>
-										{PostedSince(post.created_at)}
+										{PostedSince(post.createdAt)}
 									</Typography.Text>
 								</Space>
 							</div>

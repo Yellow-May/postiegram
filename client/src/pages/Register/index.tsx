@@ -28,7 +28,7 @@ const RegisterPage: FC<RegisterPageProps> = () => {
 	const checkIfUsernameIsAvailable = () => ({
 		async validator(_: RuleObject, value: any) {
 			try {
-				await axiosInstance.post('/user/confirm-username', {
+				await axiosInstance.post('/users/confirm-username', {
 					username: value.trim(),
 				});
 				return Promise.resolve();
@@ -41,12 +41,18 @@ const RegisterPage: FC<RegisterPageProps> = () => {
 	});
 
 	// antd form rule to compare passwords are the same
-	const comparePasswords = ({ getFieldValue }: { getFieldValue: (name: NamePath) => any }) => ({
+	const comparePasswords = ({
+		getFieldValue,
+	}: {
+		getFieldValue: (name: NamePath) => any;
+	}) => ({
 		validator(_: RuleObject, value: any) {
 			if (!value || getFieldValue('password') === value) {
 				return Promise.resolve();
 			}
-			return Promise.reject(new Error('The two passwords that you entered do not match!'));
+			return Promise.reject(
+				new Error('The two passwords that you entered do not match!')
+			);
 		},
 	});
 
@@ -66,7 +72,9 @@ const RegisterPage: FC<RegisterPageProps> = () => {
 	const onFinish = async (values: FormRegisterValuesProps) => {
 		const profile_pic = await profilePicRequest();
 		dispatch(RegisterUser({ ...values, profile_pic }));
-		navigate(!state || state?.from?.pathname === '/login' ? '/' : state?.from, { replace: true });
+		navigate(!state || state?.from?.pathname === '/login' ? '/' : state?.from, {
+			replace: true,
+		});
 	};
 
 	useEffect(() => {
@@ -89,7 +97,12 @@ const RegisterPage: FC<RegisterPageProps> = () => {
 				<Typography.Title
 					type='secondary'
 					level={2}
-					style={{ textAlign: 'center', border: 'thin solid #e3e3e3', padding: 8, margin: 0 }}>
+					style={{
+						textAlign: 'center',
+						border: 'thin solid #e3e3e3',
+						padding: 8,
+						margin: 0,
+					}}>
 					Create Account
 				</Typography.Title>
 
@@ -104,7 +117,9 @@ const RegisterPage: FC<RegisterPageProps> = () => {
 					<Form.Item
 						label='Full Name'
 						name='full_name'
-						rules={[{ required: true, message: 'Please provide your full name' }]}>
+						rules={[
+							{ required: true, message: 'Please provide your full name' },
+						]}>
 						<Input />
 					</Form.Item>
 					<Form.Item
@@ -144,18 +159,32 @@ const RegisterPage: FC<RegisterPageProps> = () => {
 						name='confirm-password'
 						dependencies={['password']}
 						hasFeedback
-						rules={[{ required: true, message: 'Please confirm password' }, comparePasswords]}>
+						rules={[
+							{ required: true, message: 'Please confirm password' },
+							comparePasswords,
+						]}>
 						<Input.Password />
 					</Form.Item>
 
-					<Form.Item wrapperCol={{ offset: 8, span: 16 }} style={{ marginBottom: 0 }}>
-						<Button type='primary' htmlType='submit' block className='register-form-button'>
+					<Form.Item
+						wrapperCol={{ offset: 8, span: 16 }}
+						style={{ marginBottom: 0 }}>
+						<Button
+							type='primary'
+							htmlType='submit'
+							block
+							className='register-form-button'>
 							Create Account
 						</Button>
 					</Form.Item>
 				</Form>
 
-				<div style={{ border: 'thin solid #e3e3e3', padding: 16, textAlign: 'center' }}>
+				<div
+					style={{
+						border: 'thin solid #e3e3e3',
+						padding: 16,
+						textAlign: 'center',
+					}}>
 					Already registered? <Link to='/login'>Login</Link>
 				</div>
 			</Space>

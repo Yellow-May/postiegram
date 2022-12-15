@@ -1,58 +1,43 @@
-import { FC, Fragment } from 'react';
-import axios from 'axios';
+import { FC, Fragment, useMemo } from 'react';
 import { usePrivateAxios } from 'hooks';
-import { useSelector } from 'react-redux';
 import { Col, Row, Image } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getUser } from 'redux/features/Auth';
 import { PostModal } from 'components';
 import { useQuery } from '@tanstack/react-query';
+import { PostType } from 'types';
 
 interface ProfilePostsProps {}
 
-type MediaType = {
-	id: string;
-	url: string;
-};
-
-export type DataType = {
-	id: string;
-	caption: string;
-	created_at: string;
-	media: MediaType[];
-	likes: { username: string; profile_pic: string }[];
-	like_id?: string;
-	bookmarl_id?: string;
-};
-
 const ProfilePosts: FC<ProfilePostsProps> = () => {
 	const location = useLocation();
-	const axiosPrivate = usePrivateAxios();
-	const source = axios.CancelToken.source();
-	const username_url = location.pathname.split('/')[1];
-	const saved = location.pathname.split('/')[2] === 'saved';
-
-	const { data } = useQuery(['my-posts', { username_url, saved }], async () => {
-		const url = saved ? `/post/bookmarked` : `/post/${username_url}`;
-		const res = await axiosPrivate.get(url, {
-			cancelToken: source.token,
-		});
-		return res.data.posts as DataType[];
-	});
-
-	const user = useSelector(getUser);
-	const isUser = location.pathname.includes(user?.username as string);
 	const navigate = useNavigate();
+	const axiosPrivate = usePrivateAxios();
+	const username = location.pathname.split('/')[1];
+	const bookmarked = location.pathname.split('/')[2] === 'saved';
+
+	const queryKey = useMemo(
+		() => ['posts', { username, bookmarked }],
+		[username, bookmarked]
+	);
+	const { data } = useQuery(queryKey, async () => {
+		const url = bookmarked
+			? `/posts?bookmarked=true`
+			: `/posts?username=${username}`;
+		const res = await axiosPrivate.get(url);
+		return res.data.posts as PostType[];
+	});
 
 	return (
 		<Fragment>
-			<Row gutter={24} style={{ margin: 0 }}>
+			<Row
+				gutter={[24, 24]}
+				style={{ marginRight: 0, marginLeft: 0, paddingBottom: 24 }}>
 				{data?.map(post => {
-					const { caption, id, media } = post;
+					const { caption, _id, media } = post;
 					const { url } = media[0];
 
 					return (
-						<Col key={id} {...{ xs: 8, sm: 8, md: 8, lg: 8 }}>
+						<Col key={_id} {...{ xs: 8, sm: 8, md: 8, lg: 8 }}>
 							<div
 								className='custom-img-wrapper'
 								style={{
@@ -68,7 +53,7 @@ const ProfilePosts: FC<ProfilePostsProps> = () => {
 									width='100%'
 									preview={false}
 									style={{ cursor: 'pointer', maxHeight: '100%' }}
-									onClick={() => navigate(`?post_id=${id}&&post_modal=1`)}
+									onClick={() => navigate(`?post_id=${_id}&&post_modal=1`)}
 								/>
 							</div>
 						</Col>
@@ -76,7 +61,7 @@ const ProfilePosts: FC<ProfilePostsProps> = () => {
 				})}
 			</Row>
 
-			<PostModal {...{ isUser, username_url, saved }} />
+			<PostModal {...{ queryKey }} />
 		</Fragment>
 	);
 };

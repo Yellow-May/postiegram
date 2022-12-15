@@ -4,7 +4,7 @@ const postRouter = require('./post/routes');
 const userRouter = require('./user/routes');
 
 apiRouter.use('/', authRouter);
-apiRouter.use('/user', userRouter);
-apiRouter.use('/post', postRouter);
+apiRouter.use('/users', userRouter);
+apiRouter.use('/posts', postRouter);
 
 module.exports = apiRouter;

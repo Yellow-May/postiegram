@@ -3,52 +3,49 @@ import { useNavigate } from 'react-router-dom';
 import { DeleteFilled } from '@ant-design/icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Carousel, Modal, Typography, Image, Button } from 'antd';
-import LikePost from 'components/LikePost';
+import { LikePost, BookmarkPost } from 'components';
 import { usePrivateAxios, useURLQuery } from 'hooks';
-import { DataType } from 'pages/ProfilePosts';
-import BookmarkPost from 'components/BookmarkPost';
+import { PostType } from 'types';
+import { useSelector } from 'react-redux';
+import { getUser } from 'redux/features/Auth';
 
 interface PostModalProps {
-	isUser: boolean;
-	username_url: string;
-	saved: boolean;
+	queryKey: (string | object)[];
 }
 
-const PostModal: FC<PostModalProps> = ({ isUser, username_url, saved }) => {
+const PostModal: FC<PostModalProps> = ({ queryKey }) => {
 	const axiosPrivate = usePrivateAxios();
 	const navigate = useNavigate();
+	const user = useSelector(getUser);
 	const queryClient = useQueryClient();
-	const query = useURLQuery();
-	const post_id = query.get('post_id');
-	const visible = Boolean(query.get('post_modal'));
+	const URLQuery = useURLQuery();
+	const post_id = URLQuery.get('post_id');
+	const visible = Boolean(URLQuery.get('post_modal'));
 
 	const { data, refetch } = useQuery(
-		['post', username_url, post_id, saved],
+		['post', post_id],
 		async () => {
-			const url = saved
-				? `/post/bookmarked/${post_id}`
-				: `/post/${username_url}/${post_id}`;
-			const res = await axiosPrivate.get(url);
-			return res.data.post as DataType;
+			const res = await axiosPrivate.get(`/posts/${post_id}`);
+			return res.data as PostType;
 		},
 		{ enabled: false }
 	);
 
 	const deletePost = useMutation({
 		mutationFn: async () => {
-			await axiosPrivate.delete(`/post/${data?.id}`);
+			await axiosPrivate.delete(`/post/${data?._id}`);
 		},
 		onSuccess: () => {
 			navigate(-1);
 			Modal.destroyAll();
-			queryClient.invalidateQueries(['my-posts', username_url]);
+			queryClient.invalidateQueries(queryKey);
 		},
 	});
 
 	useEffect(() => {
 		visible && refetch();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [query]);
+	}, [URLQuery]);
 
 	const confirmModal = () => {
 		Modal.confirm({
@@ -74,11 +71,11 @@ const PostModal: FC<PostModalProps> = ({ isUser, username_url, saved }) => {
 		width: 480,
 		centered: true,
 		footer:
-			!isUser || saved ? null : (
+			user?._id === data?.creator_id ? (
 				<Button {...{ danger: true, onClick: confirmModal }}>
 					<DeleteFilled />
 				</Button>
-			),
+			) : null,
 		destroyOnClose: true,
 		onCancel,
 	};
@@ -87,8 +84,8 @@ const PostModal: FC<PostModalProps> = ({ isUser, username_url, saved }) => {
 		<Modal {...modalProps}>
 			<div>
 				<Carousel autoplay dotPosition='bottom'>
-					{data?.media.map(({ id, url }) => (
-						<div key={id} className='custom-carousel-wrapper'>
+					{data?.media.map(({ _id, url }) => (
+						<div key={_id} className='custom-carousel-wrapper'>
 							<Image
 								crossOrigin='anonymous'
 								src={url}
@@ -108,14 +105,12 @@ const PostModal: FC<PostModalProps> = ({ isUser, username_url, saved }) => {
 					}}>
 					{data && (
 						<Fragment>
-							<LikePost
-								{...{ post: data, isUser: saved ? false : isUser, refetch }}
-							/>
-							{saved && (
+							<LikePost {...{ post: data, refetch }} />
+							{user?._id !== data.creator_id && (
 								<BookmarkPost
 									{...{
 										post: data,
-										queryKey: ['my-posts', { username_url, saved }],
+										queryKey,
 										refetch,
 									}}
 								/>
